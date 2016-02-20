@@ -1,27 +1,28 @@
 package com.oink.walkingwithpug;
 
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
-import java.awt.Font;
-
 /**
  * Main class for the game
  */
 public class PugGame extends Game {
-	SpriteBatch batch;
-	Texture img;
-	BitmapFont font;
+    final float viewportRatio = 0.1f;
+    final int worldWidth = 10000;
+    final int worldHeight = 10000;
+    float maxLineLengthSquared;
 
-	@Override
-	public void create () {
-		batch = new SpriteBatch();
+    SpriteBatch batch;
+    Texture img;
+    BitmapFont font;
+
+    @Override
+    public void create() {
+        batch = new SpriteBatch();
 
         //Loading resources
 
@@ -31,18 +32,18 @@ public class PugGame extends Game {
         // Creating the main menu
         setScreen(new MainMenuScreen(this));
 
-	}
+    }
 
-	@Override
-	public void render () {
+    @Override
+    public void render() {
         super.render();
-	}
+    }
 
     @Override
     public void dispose() {
         img.dispose();
         batch.dispose();
-
+        font.dispose();
         super.dispose();
     }
 

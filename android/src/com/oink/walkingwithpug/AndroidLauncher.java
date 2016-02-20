@@ -13,6 +13,7 @@ public class AndroidLauncher extends AndroidApplication {
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 
 		config.useImmersiveMode = true;
+		config.useWakelock = true;
 
 		initialize(new PugGame(), config);
 	}

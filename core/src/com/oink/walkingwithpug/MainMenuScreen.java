@@ -5,7 +5,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 
 /**
- * Created by Сергей on 17.02.2016.
+ * This class makes a new game and exit buttons on the screen.
  */
 public class MainMenuScreen implements Screen {
 
