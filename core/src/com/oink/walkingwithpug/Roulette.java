@@ -16,9 +16,10 @@ class Roulette extends Actor {
     Texture rouletteTextureReversed;
     RouletteLine rouletteLine;
 
-    float dy = 5;
+    final float dy = 5;
     boolean animationFlag = true;
     float animationTime = 0f;
+    boolean isDragging = false;
 
     Roulette(float scale) {
         super();
@@ -33,6 +34,8 @@ class Roulette extends Actor {
         setTouchable(Touchable.enabled);
 
         makeListeners(this);
+
+        setOrigin(getX() + getWidth() / 2 , getY() + getHeight() / 2);
     }
 
     @Override
@@ -58,7 +61,14 @@ class Roulette extends Actor {
             @Override
             public void drag(InputEvent event, float x, float y, int pointer) {
                 //Gdx.app.log("INFO", "Dragging...");
+                isDragging = true;
                 roulette.moveBy(x - roulette.getWidth() / 2, y - roulette.getHeight() / 2);
+            }
+            //Checks drag finish and set isDragging to true
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                isDragging = false;
+                super.touchUp(event, x, y, pointer, button);
             }
         });
     }
@@ -85,19 +95,19 @@ class RouletteLine {
 
     void setPoints(Pug pug, Roulette roulette) {
         //Pug coordinates
-        x1 = pug.getX() + pug.getWidth() / 2;
-        y1 = pug.getY() + pug.getHeight();
+        x1 = pug.getX() + pug.getOriginX();
+        y1 = pug.getY() + pug.getOriginY();
         //Roulette coordinates
-        x2 = roulette.getX() + roulette.getWidth() / 2;
-        y2 = roulette.getY() + roulette.getHeight() / 2;
+        x2 = roulette.getX() + roulette.getOriginX();
+        y2 = roulette.getY() + roulette.getOriginY();
 
         if (x2 > x1) {
-            x2 -= roulette.getWidth() / 2;
+            x2 -= roulette.getOriginX();
         } else {
-            x2 += roulette.getWidth() / 2;
+            x2 += roulette.getOriginX();
         }
 
-        y1 -= pug.getHeight() / 4;
+        //y1 -= pug.getHeight() / 4;
     }
 
     void setProjectionMatrix(Matrix4 matrix) {

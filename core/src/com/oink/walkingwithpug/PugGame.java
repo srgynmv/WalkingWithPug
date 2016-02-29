@@ -11,6 +11,9 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
  * Main class for the game
  */
 public class PugGame extends Game {
+    //Ratio that keeps proportion right
+    float ratio;
+
     final float viewportRatio = 0.1f;
     final int worldWidth = 10000;
     final int worldHeight = 10000;
@@ -23,7 +26,7 @@ public class PugGame extends Game {
     @Override
     public void create() {
         batch = new SpriteBatch();
-
+        ratio = Gdx.graphics.getHeight() / (float) Gdx.graphics.getWidth();
         //Loading resources
 
         img = new Texture(Gdx.files.internal("Walking with pug.jpg"));
