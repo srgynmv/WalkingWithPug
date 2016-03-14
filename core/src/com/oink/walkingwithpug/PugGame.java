@@ -30,7 +30,7 @@ public class PugGame extends Game {
         //Loading resources
 
         img = new Texture(Gdx.files.internal("Walking with pug.jpg"));
-        font = loadFont("pixfont.ttf", 45);
+        font = loadFont("pixfont.ttf", 105);
 
         // Creating the main menu
         setScreen(new MainMenuScreen(this));

@@ -11,7 +11,18 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 public class Pug extends Actor {
     TextureRegion pugTexture;
     GameScreen screen;
-    boolean running = false;
+    //boolean running = false;
+
+    private float life = 100f;
+
+    void removeLife(float value) {
+        life -= value;
+        if (life < 0) life = 0;
+    }
+
+    int getLife() {
+        return (int)life;
+    }
 
     public Pug(float scale, GameScreen screen) {
         super();
@@ -37,8 +48,10 @@ public class Pug extends Actor {
 
     @Override
     public void act(float delta) {
-        Vector2 eyeVector = new Vector2((screen.roulette.getX() - getX()) * delta, (screen.roulette.getY() - getY()) * delta);
-        running = false;
+        Vector2 eyeVector = new Vector2(
+                (screen.roulette.getX() + screen.roulette.getOriginX() - (getX() + getOriginX())) * delta,
+                (screen.roulette.getY() + screen.roulette.getOriginY() - (getY() + getOriginY())) * delta);
+        //running = false;
 
         //Some logging info:
         //Gdx.app.log("INFO", "" + Vector2.dst2(this.getX(), this.getY(), screen.roulette.getX(), screen.roulette.getY()));
@@ -50,7 +63,7 @@ public class Pug extends Actor {
                 screen.roulette.getX() + screen.roulette.getOriginX(),
                 screen.roulette.getY() + screen.roulette.getOriginY()) > screen.game.maxLineLengthSquared) {
             moveBy(eyeVector.x, eyeVector.y);
-            running = true;
+            //running = true;
 
             float angle = eyeVector.angle() - 90;
             if (angle < 0) angle += 360;
