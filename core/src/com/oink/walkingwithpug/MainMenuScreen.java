@@ -25,13 +25,13 @@ public class MainMenuScreen implements Screen {
         Gdx.gl20.glClearColor(0, 0.5f, 0, 1);
         Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (Gdx.input.isTouched()) {
-            game.setScreen(new GameScreen(game));
-        }
-
         game.batch.begin();
         game.font.draw(game.batch, "New game", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
         game.batch.end();
+
+        if (Gdx.input.isTouched()) {
+            game.setScreen(new GameScreen(game));
+        }
     }
 
     @Override

@@ -11,12 +11,13 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
  * Main class for the game
  */
 public class PugGame extends Game {
-    //Ratio that keeps proportion right
+    //Ratio that keeps screen proportion right
     float ratio;
 
     final float viewportRatio = 0.1f;
     final int worldWidth = 10000;
     final int worldHeight = 10000;
+    //The maximum possible length of the rope in which pug is not running to roulette
     float maxLineLengthSquared;
 
     SpriteBatch batch;
@@ -29,7 +30,6 @@ public class PugGame extends Game {
         ratio = Gdx.graphics.getHeight() / (float) Gdx.graphics.getWidth();
         //Loading resources
 
-        img = new Texture(Gdx.files.internal("Walking with pug.jpg"));
         font = loadFont("pixfont.ttf", 105);
 
         // Creating the main menu
@@ -42,14 +42,23 @@ public class PugGame extends Game {
         super.render();
     }
 
+
+    /**
+     * This method dispose all loaded resources
+     */
     @Override
     public void dispose() {
-        img.dispose();
         batch.dispose();
         font.dispose();
         super.dispose();
     }
 
+    /**
+     * Converts .ttf font to the bitmap font with required size
+     * @param path path to .ttf font
+     * @param size required size
+     * @return generated bitmap font
+     */
     private BitmapFont loadFont(String path, int size) {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(path));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
