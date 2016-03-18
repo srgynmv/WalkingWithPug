@@ -50,17 +50,12 @@ public class Pug extends Actor {
         Vector2 eyeVector = new Vector2(
                 (screen.roulette.getX() + screen.roulette.getOriginX() - (getX() + getOriginX())) * delta,
                 (screen.roulette.getY() + screen.roulette.getOriginY() - (getY() + getOriginY())) * delta);
-        //running = false;
-
-        //Some logging info:
-        //Gdx.app.log("INFO", "" + Vector2.dst2(this.getX(), this.getY(), screen.roulette.getX(), screen.roulette.getY()));
-        //Gdx.app.log("INFO", "" + screen.game.maxLineLengthSquared);
-        //Gdx.app.log("ANGLE", "" + eyeVector.angle());
 
         //If pug too far from roulette, move to roulette, set running == true
         if (Vector2.dst2(getX() + getOriginX(), getY() + getOriginY(),
                 screen.roulette.getX() + screen.roulette.getOriginX(),
-                screen.roulette.getY() + screen.roulette.getOriginY()) > screen.maxLineLengthSquared) {
+                screen.roulette.getY() + screen.roulette.getOriginY()
+        ) > screen.maxLineLengthSquared) {
             moveBy(eyeVector.x, eyeVector.y);
             //running = true;
 

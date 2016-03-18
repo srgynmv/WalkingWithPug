@@ -40,7 +40,7 @@ public class GameScreen implements Screen {
 
         //Making camera
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, game.worldWidth * game.viewportRatio, game.worldHeight * game.viewportRatio * game.ratio);
+        camera.setToOrtho(false);
         //Making viewport and input processor
         stage = new Stage(new StretchViewport(game.worldWidth * game.viewportRatio, game.worldHeight * game.viewportRatio * game.ratio, camera));
         Gdx.input.setInputProcessor(stage);
@@ -75,6 +75,7 @@ public class GameScreen implements Screen {
 
         stage.getCamera().update();
 
+        //TODO Change call setPoints() every render to one initialization
         //Update coordinates for roulette line
         roulette.rouletteLine.setPoints(pug, roulette);
         roulette.rouletteLine.setProjectionMatrix(stage.getCamera().combined);
@@ -85,9 +86,6 @@ public class GameScreen implements Screen {
         //Drawing map
         stage.getBatch().begin();
         stage.getBatch().draw(map, 0, 0, game.worldWidth, game.worldHeight);
-//        game.font.draw(stage.getBatch(), "HP: " + pug.getLife(),
-//                stage.getCamera().position.x  - stage.getWidth() / 2 + stage.getWidth() * 0.1f,
-//                stage.getCamera().position.y + stage.getHeight() / 2 - stage.getHeight() * 0.1f);
         stage.getBatch().end();
 
         //TODO Make life works better!
@@ -187,17 +185,15 @@ public class GameScreen implements Screen {
 
     @Override
     public void pause() {
-
+        //Save data
     }
 
     @Override
     public void resume() {
-
     }
 
     @Override
     public void hide() {
-
     }
 
     @Override

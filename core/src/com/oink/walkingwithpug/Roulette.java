@@ -27,7 +27,6 @@ class Roulette extends Actor {
     private GameScreen screen;
 
     Roulette(float scale, GameScreen screen) {
-        super();
         this.screen = screen;
         rouletteLine = new RouletteLine();
 
@@ -111,6 +110,10 @@ class Roulette extends Actor {
             setY(getY() + dy);
         }
         animationFlag = !animationFlag;
+    }
+
+    @Override
+    public void act(float delta) {
     }
 }
 

@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -42,7 +41,7 @@ public class MainMenuScreen implements Screen {
         stage = new Stage(new StretchViewport(game.worldWidth * game.viewportRatio, game.worldHeight * game.viewportRatio * game.ratio));
         Gdx.input.setInputProcessor(stage);
 
-        textureScale = stage.getWidth() / backgroundTexture.getWidth() ;
+        textureScale = stage.getWidth() / backgroundTexture.getWidth();
 
         Gdx.app.log("SCALE", textureScale + "");
         //Create some buttons.
@@ -82,31 +81,29 @@ public class MainMenuScreen implements Screen {
     private ImageButton makeButton(String name) {
         TextureRegionDrawable buttonUp = new TextureRegionDrawable(new TextureRegion(new Texture(name + ".png")));
         TextureRegionDrawable buttonDown = new TextureRegionDrawable(new TextureRegion(new Texture(name + "_pressed.png")));
-        ImageButton button;
-        button = new ImageButton(buttonUp, buttonDown);
+
+        ImageButton button = new ImageButton(buttonUp, buttonDown);
         button.setSize(button.getWidth() * textureScale, button.getHeight() * textureScale);
-        //button.setBounds(button.getX(), button.getY(), button.getWidth(), button.getHeight());
         return button;
     }
 
     @Override
     public void show() {
-
+        
     }
 
-    float kof = 1;
+    float angleFactor = 1;
 
     @Override
     public void render(float delta) {
         Gdx.gl20.glClearColor(0, 0.5f, 0, 1);
         Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (logoSprite.getRotation() > 5) kof = -1;
-        if (logoSprite.getRotation() < 0) kof = 1;
-        logoSprite.rotate(1.5f * delta * kof);
+        if (logoSprite.getRotation() > 5) angleFactor = -1;
+        if (logoSprite.getRotation() < 0) angleFactor = 1;
+        logoSprite.rotate(1.5f * delta * angleFactor);
 
-        stage.act(delta);
-
+        //Drawing
         stage.getBatch().begin();
         stage.getBatch().draw(backgroundTexture, 0, 0, stage.getWidth(), stage.getHeight());
         stage.getBatch().draw(
