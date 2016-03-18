@@ -26,11 +26,13 @@ public class GameScreen implements Screen {
 
     OrthographicCamera camera;
 
+    float maxLineLengthSquared;
+
     GameScreen(final PugGame game) {
         Gdx.app.log("INFO", "In a GameScreen constructor");
         this.game = game;
         //Settings up the scales of pug and roulette
-        roulette = new Roulette(0.25f);
+        roulette = new Roulette(0.25f, this);
         pug = new Pug(0.4f, this);
 
         //DEBUG
@@ -55,10 +57,12 @@ public class GameScreen implements Screen {
         stage.addActor(pug);
         stage.addActor(roulette);
 
-        game.maxLineLengthSquared = stage.getWidth() / 4;
-        game.maxLineLengthSquared *= game.maxLineLengthSquared;
+        maxLineLengthSquared = stage.getWidth() / 4;
+        maxLineLengthSquared *= maxLineLengthSquared;
 
         Gdx.app.log("CAMERA ZOOM", "" + camera.zoom);
+
+        //stage.setDebugAll(true);
     }
 
     @Override
@@ -80,7 +84,7 @@ public class GameScreen implements Screen {
         //DEBUG
         //Drawing map
         stage.getBatch().begin();
-        stage.getBatch().draw(map, 0, 0, map.getWidth() * 8, map.getHeight() * 8);
+        stage.getBatch().draw(map, 0, 0, game.worldWidth, game.worldHeight);
 //        game.font.draw(stage.getBatch(), "HP: " + pug.getLife(),
 //                stage.getCamera().position.x  - stage.getWidth() / 2 + stage.getWidth() * 0.1f,
 //                stage.getCamera().position.y + stage.getHeight() / 2 - stage.getHeight() * 0.1f);
@@ -125,17 +129,33 @@ public class GameScreen implements Screen {
         //Else camera moves to roulette.
         //TODO Change 10 with cameraSize - depending value
         if (roulette.isDragging) {
-            if (Math.abs(rouletteDx) > 10) {
-                stage.getCamera().translate(rouletteDx * Gdx.graphics.getDeltaTime(), 0, 0);
-                roulette.moveBy(rouletteDx * Gdx.graphics.getDeltaTime(), 0);
-            }
-            if (Math.abs(rouletteDy) > 10 * game.ratio) {
-                stage.getCamera().translate(0, rouletteDy / game.ratio * Gdx.graphics.getDeltaTime(), 0);
-                roulette.moveBy(0, rouletteDy / game.ratio * Gdx.graphics.getDeltaTime());
-            }
-
             //If roulette is moving, zooming up camera
             camera.zoom = Math.min(1.5f, camera.zoom + 0.01f);
+
+            //Limit the movement of camera
+            float effectiveViewportWidth = camera.viewportWidth * camera.zoom;
+            float effectiveViewportHeight = camera.viewportHeight * camera.zoom;
+
+            if (Math.abs(rouletteDx) > 10) {
+                camera.position.x = MathUtils.clamp(
+                        camera.position.x + rouletteDx * Gdx.graphics.getDeltaTime(),
+                        effectiveViewportWidth / 2,
+                        game.worldWidth - effectiveViewportWidth / 2
+                );
+                if (camera.position.x > effectiveViewportWidth / 2 && camera.position.x < game.worldWidth - effectiveViewportWidth / 2) {
+                    roulette.moveBy(rouletteDx * Gdx.graphics.getDeltaTime(), 0);
+                }
+        }
+            if (Math.abs(rouletteDy) > 10 * game.ratio) {
+                camera.position.y = MathUtils.clamp(
+                        camera.position.y + rouletteDy / game.ratio * Gdx.graphics.getDeltaTime(),
+                        effectiveViewportHeight / 2,
+                        game.worldWidth - effectiveViewportHeight / 2
+                );
+                if (camera.position.y > effectiveViewportHeight / 2 && camera.position.y < game.worldHeight - effectiveViewportHeight / 2) {
+                    roulette.moveBy(0, rouletteDy / game.ratio * Gdx.graphics.getDeltaTime());
+                }
+            }
         }
         else {
             stage.getCamera().translate(
@@ -143,8 +163,16 @@ public class GameScreen implements Screen {
                     (rouletteLineMiddleY - stage.getCamera().position.y) * Gdx.graphics.getDeltaTime(),
                     0
             );
+
             //If staying, zooming down
             camera.zoom = Math.max(1.0f, camera.zoom - 0.01f);
+
+            //Limit the movement of camera
+            float effectiveViewportWidth = camera.viewportWidth * camera.zoom;
+            float effectiveViewportHeight = camera.viewportHeight * camera.zoom;
+
+            camera.position.x = MathUtils.clamp(camera.position.x, effectiveViewportWidth / 2, game.worldWidth - effectiveViewportWidth / 2);
+            camera.position.y = MathUtils.clamp(camera.position.y, effectiveViewportHeight / 2, game.worldWidth - effectiveViewportHeight / 2);
         }
     }
 

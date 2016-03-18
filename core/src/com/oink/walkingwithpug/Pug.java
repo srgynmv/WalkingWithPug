@@ -9,9 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 
 public class Pug extends Actor {
-    TextureRegion pugTexture;
-    GameScreen screen;
-    //boolean running = false;
+    private TextureRegion pugTexture;
+    private GameScreen screen;
 
     private float life = 100f;
 
@@ -61,7 +60,7 @@ public class Pug extends Actor {
         //If pug too far from roulette, move to roulette, set running == true
         if (Vector2.dst2(getX() + getOriginX(), getY() + getOriginY(),
                 screen.roulette.getX() + screen.roulette.getOriginX(),
-                screen.roulette.getY() + screen.roulette.getOriginY()) > screen.game.maxLineLengthSquared) {
+                screen.roulette.getY() + screen.roulette.getOriginY()) > screen.maxLineLengthSquared) {
             moveBy(eyeVector.x, eyeVector.y);
             //running = true;
 

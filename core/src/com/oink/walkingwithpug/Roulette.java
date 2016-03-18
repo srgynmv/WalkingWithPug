@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -12,17 +13,22 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 
 class Roulette extends Actor {
 
-    Texture rouletteTexture;
-    Texture rouletteTextureReversed;
+    private Texture rouletteTexture;
+    private Texture rouletteTextureReversed;
     RouletteLine rouletteLine;
 
     final float dy = 5;
-    boolean animationFlag = true;
-    float animationTime = 0f;
-    boolean isDragging = false;
+    private float animationTime = 0f;
 
-    Roulette(float scale) {
+    private boolean animationFlag = true;
+    boolean isDragging = false;
+    boolean reversed;
+
+    private GameScreen screen;
+
+    Roulette(float scale, GameScreen screen) {
         super();
+        this.screen = screen;
         rouletteLine = new RouletteLine();
 
         rouletteTexture = new Texture(Gdx.files.internal("Roulette.png"));
@@ -36,23 +42,43 @@ class Roulette extends Actor {
         makeListeners(this);
 
         setOrigin(getX() + getWidth() / 2 , getY() + getHeight() / 2);
+
+        reversed = true;
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
 
         //Make roulette animated
-        animationTime += Gdx.graphics.getDeltaTime();
-        if (animationTime > 0.3f) animateRoulette();
+        animationTime = Math.min(animationTime + Gdx.graphics.getDeltaTime(), 0.4f);
+        if (animationTime > 0.3f && !isDragging) {
+            animateRoulette();
+            animationTime = 0f;
+        }
 
-        //Draw line
+        //Draw roulette rope
         rouletteLine.draw(batch);
 
-        if (getX() + getWidth() / 2 > rouletteLine.x1) {
+        correctReverse();
+
+        if (reversed) {
             batch.draw(rouletteTextureReversed, getX(), getY(), getWidth(), getHeight());
         }
         else {
             batch.draw(rouletteTexture, getX(), getY(), getWidth(), getHeight());
+        }
+    }
+
+    private void correctReverse() {
+        if (reversed) {
+            if (getX() + getOriginX() < rouletteLine.x1) {
+                reversed = false;
+            }
+        }
+        else {
+            if (getX() + getOriginX() > rouletteLine.x1) {
+                reversed = true;
+            }
         }
     }
 
@@ -62,7 +88,12 @@ class Roulette extends Actor {
             public void drag(InputEvent event, float x, float y, int pointer) {
                 //Gdx.app.log("INFO", "Dragging...");
                 isDragging = true;
-                roulette.moveBy(x - roulette.getWidth() / 2, y - roulette.getHeight() / 2);
+                roulette.moveBy(
+                        x - roulette.getOriginX(),
+                        y - roulette.getOriginY()
+                );
+                roulette.setX(MathUtils.clamp(roulette.getX(), 0, roulette.screen.game.worldWidth - roulette.getWidth()));
+                roulette.setY(MathUtils.clamp(roulette.getY(), 0, roulette.screen.game.worldHeight - roulette.getHeight()));
             }
             //Checks drag finish and set isDragging to true
             @Override
@@ -80,14 +111,20 @@ class Roulette extends Actor {
             setY(getY() + dy);
         }
         animationFlag = !animationFlag;
-        animationTime = 0f;
     }
 }
 
 class RouletteLine {
     final float lineWidth = 5;
     ShapeRenderer renderer;
-    float x1, y1, x2, y2;
+    /** Pug center X */
+    float x1;
+    /** Pug center Y */
+    float y1;
+    /** Roulette center X */
+    float x2;
+    /** Roulette center Y */
+    float y2;
 
     RouletteLine() {
         renderer = new ShapeRenderer();
@@ -101,7 +138,7 @@ class RouletteLine {
         x2 = roulette.getX() + roulette.getOriginX();
         y2 = roulette.getY() + roulette.getOriginY();
 
-        if (x2 > x1) {
+        if (roulette.reversed) {
             x2 -= roulette.getOriginX();
         } else {
             x2 += roulette.getOriginX();

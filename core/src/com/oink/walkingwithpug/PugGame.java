@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 
 /**
  * Main class for the game
@@ -18,10 +19,8 @@ public class PugGame extends Game {
     final int worldWidth = 10000;
     final int worldHeight = 10000;
     //The maximum possible length of the rope in which pug is not running to roulette
-    float maxLineLengthSquared;
 
     SpriteBatch batch;
-    Texture img;
     BitmapFont font;
 
     @Override
@@ -30,7 +29,7 @@ public class PugGame extends Game {
         ratio = Gdx.graphics.getHeight() / (float) Gdx.graphics.getWidth();
         //Loading resources
 
-        font = loadFont("pixfont.ttf", 105);
+        font = loadFont("pixfont.ttf", 32);
 
         // Creating the main menu
         setScreen(new MainMenuScreen(this));
