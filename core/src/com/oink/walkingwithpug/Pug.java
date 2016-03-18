@@ -65,4 +65,14 @@ public class Pug extends Actor {
             setRotation(angle); //Add 90 degrees because of pug texture directed to top
         }
     }
+
+    public float getCenterX()
+    {
+        return getX() + getOriginX();
+    }
+
+    public float getCenterY()
+    {
+        return getY() + getOriginY();
+    }
 }

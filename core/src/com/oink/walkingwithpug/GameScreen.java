@@ -32,8 +32,8 @@ public class GameScreen implements Screen {
         Gdx.app.log("INFO", "In a GameScreen constructor");
         this.game = game;
         //Settings up the scales of pug and roulette
-        roulette = new Roulette(0.25f, this);
         pug = new Pug(0.4f, this);
+        roulette = new Roulette(0.25f, this);
 
         //DEBUG
         map = new Texture(Gdx.files.internal("random_map.png"));
@@ -76,8 +76,7 @@ public class GameScreen implements Screen {
         stage.getCamera().update();
 
         //TODO Change call setPoints() every render to one initialization
-        //Update coordinates for roulette line
-        roulette.rouletteLine.setPoints(pug, roulette);
+        //Update matrix for roulette line
         roulette.rouletteLine.setProjectionMatrix(stage.getCamera().combined);
 
         stage.act(delta);
