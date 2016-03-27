@@ -5,12 +5,18 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 
@@ -23,6 +29,7 @@ public class GameScreen implements Screen {
     ImageButton pauseButton;
     //DEBUG
     Texture map;
+    //END_DEBUG
 
     float enemyTimer;
     Group enemiesGroup;
@@ -80,7 +87,6 @@ public class GameScreen implements Screen {
 
         stage.getCamera().update();
 
-        //TODO Change call setPoints() every render to one initialization
         //Update matrix for roulette line
         roulette.rouletteLine.setProjectionMatrix(stage.getCamera().combined);
 
@@ -88,6 +94,7 @@ public class GameScreen implements Screen {
 
         //DEBUG
         //Drawing map
+
         stage.getBatch().begin();
         stage.getBatch().draw(map, 0, 0, game.worldWidth, game.worldHeight);
         stage.getBatch().end();

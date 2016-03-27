@@ -2,6 +2,7 @@ package com.oink.walkingwithpug;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -11,8 +12,30 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 public class Pug extends Actor {
     private TextureRegion pugTexture;
     private GameScreen screen;
-
     private float life = 100f;
+
+    Animation createAnimation(String spriteSheetName, int rows, int cols) {
+        Texture spriteSheet;
+        TextureRegion spriteFrames[];
+        spriteSheet = new Texture(Gdx.files.internal(spriteSheetName));
+        TextureRegion[][] tmp = TextureRegion.split(spriteSheet, spriteSheet.getWidth()/cols, spriteSheet.getHeight()/rows);
+        spriteFrames = new TextureRegion[cols * rows];
+        int index = 0;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                spriteFrames[index++] = tmp[i][j];
+            }
+        }
+        Animation animation = new Animation(1 / 4f, spriteFrames);
+        return animation;
+    }
+
+    //TESTING
+    private Animation pugAnimation;
+    float stateTime;
+    private boolean isRunning;
+    private float speed;
+    ///
 
     void removeLife(float value) {
         life -= value;
@@ -27,7 +50,13 @@ public class Pug extends Actor {
         super();
         this.screen = screen;
 
-        pugTexture = new TextureRegion(new Texture(Gdx.files.internal("pug.png")));
+        //TESTING
+        pugAnimation = createAnimation("pug_animated.png", 2, 2);
+        stateTime = 0;
+        speed = 0;
+        pugTexture = pugAnimation.getKeyFrame(stateTime, true);
+        isRunning = false;
+        ///
 
         //Setup actor parameters
         setHeight(pugTexture.getRegionHeight() * scale);
@@ -42,6 +71,8 @@ public class Pug extends Actor {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
+        stateTime += Gdx.graphics.getDeltaTime() * speed;
+        if (isRunning) pugTexture = pugAnimation.getKeyFrame(stateTime, true);
         batch.draw(pugTexture, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
     }
 
@@ -50,6 +81,7 @@ public class Pug extends Actor {
         Vector2 eyeVector = new Vector2(
                 (screen.roulette.getX() + screen.roulette.getOriginX() - (getX() + getOriginX())) * delta,
                 (screen.roulette.getY() + screen.roulette.getOriginY() - (getY() + getOriginY())) * delta);
+        speed = eyeVector.len() / 5;
 
         //If pug too far from roulette, move to roulette, set running == true
         if (Vector2.dst2(getX() + getOriginX(), getY() + getOriginY(),
@@ -57,12 +89,15 @@ public class Pug extends Actor {
                 screen.roulette.getY() + screen.roulette.getOriginY()
         ) > screen.maxLineLengthSquared) {
             moveBy(eyeVector.x, eyeVector.y);
-            //running = true;
+            isRunning = true;
 
             float angle = eyeVector.angle() - 90;
             if (angle < 0) angle += 360;
 
             setRotation(angle); //Add 90 degrees because of pug texture directed to top
+        }
+        else {
+            isRunning = false;
         }
     }
 
