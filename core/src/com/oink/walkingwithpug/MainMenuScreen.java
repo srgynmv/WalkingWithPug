@@ -40,19 +40,18 @@ public class MainMenuScreen implements Screen {
         this.game = game;
         stage = new Stage(new StretchViewport(game.worldWidth * game.viewportRatio, game.worldHeight * game.viewportRatio * game.ratio));
         Gdx.input.setInputProcessor(stage);
-
         textureScale = stage.getWidth() / backgroundTexture.getWidth();
 
         Gdx.app.log("SCALE", textureScale + "");
         //Create some buttons.
-        newGameButton = makeButton("new_game");
+        newGameButton = PugGame.makeButton("new_game", textureScale);
         newGameButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setScreen(new GameScreen(game));
             }
         });
-        quitButton = makeButton("quit");
+        quitButton = PugGame.makeButton("quit", textureScale);
         quitButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -78,14 +77,6 @@ public class MainMenuScreen implements Screen {
         stage.addActor(table);
     }
 
-    private ImageButton makeButton(String name) {
-        TextureRegionDrawable buttonUp = new TextureRegionDrawable(new TextureRegion(new Texture(name + ".png")));
-        TextureRegionDrawable buttonDown = new TextureRegionDrawable(new TextureRegion(new Texture(name + "_pressed.png")));
-
-        ImageButton button = new ImageButton(buttonUp, buttonDown);
-        button.setSize(button.getWidth() * textureScale, button.getHeight() * textureScale);
-        return button;
-    }
 
     @Override
     public void show() {

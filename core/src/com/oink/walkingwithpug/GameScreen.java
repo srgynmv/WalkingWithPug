@@ -6,8 +6,11 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 
@@ -17,7 +20,7 @@ public class GameScreen implements Screen {
     Stage stage;
     Roulette roulette;
     Pug pug;
-
+    ImageButton pauseButton;
     //DEBUG
     Texture map;
 
@@ -34,6 +37,8 @@ public class GameScreen implements Screen {
         //Settings up the scales of pug and roulette
         pug = new Pug(0.4f, this);
         roulette = new Roulette(0.25f, this);
+
+        pauseButton = PugGame.makeButton(" ", 1);
 
         //DEBUG
         map = new Texture(Gdx.files.internal("random_map.png"));

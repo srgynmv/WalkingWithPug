@@ -5,8 +5,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 /**
  * Main class for the game
@@ -28,7 +31,6 @@ public class PugGame extends Game {
         batch = new SpriteBatch();
         ratio = Gdx.graphics.getHeight() / (float) Gdx.graphics.getWidth();
         //Loading resources
-
         font = loadFont("pixfont.ttf", 32);
 
         // Creating the main menu
@@ -54,6 +56,7 @@ public class PugGame extends Game {
 
     /**
      * Converts .ttf font to the bitmap font with required size
+     *
      * @param path path to .ttf font
      * @param size required size
      * @return generated bitmap font
@@ -68,5 +71,14 @@ public class PugGame extends Game {
         generator.dispose();
 
         return font;
+    }
+
+    static ImageButton makeButton(String name, float textureScale) {
+        TextureRegionDrawable buttonUp = new TextureRegionDrawable(new TextureRegion(new Texture(name + ".png")));
+        TextureRegionDrawable buttonDown = new TextureRegionDrawable(new TextureRegion(new Texture(name + "_pressed.png")));
+
+        ImageButton button = new ImageButton(buttonUp, buttonDown);
+        button.setSize(button.getWidth() * textureScale, button.getHeight() * textureScale);
+        return button;
     }
 }
