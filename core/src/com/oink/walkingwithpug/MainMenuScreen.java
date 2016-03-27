@@ -41,7 +41,7 @@ public class MainMenuScreen implements Screen {
         stage = new Stage(new StretchViewport(game.worldWidth * game.viewportRatio, game.worldHeight * game.viewportRatio * game.ratio));
         Gdx.input.setInputProcessor(stage);
 
-        textureScale = stage.getWidth() / backgroundTexture.getWidth();
+        textureScale = stage.getWidth() / Gdx.graphics.getWidth();
 
         Gdx.app.log("SCALE", textureScale + "");
         //Create some buttons.
@@ -59,6 +59,7 @@ public class MainMenuScreen implements Screen {
                 Gdx.app.exit();
             }
         });
+
         //Create logo with properties.
         logoSprite = new Sprite(new Texture(Gdx.files.internal("game_logo.png")));
         logoSprite.setSize(logoSprite.getWidth() * textureScale, logoSprite.getHeight() * textureScale);

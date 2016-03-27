@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 
-class RouletteLine {
+public class RouletteLine {
     final float lineWidth = 5;
     ShapeRenderer renderer;
     Pug pug;

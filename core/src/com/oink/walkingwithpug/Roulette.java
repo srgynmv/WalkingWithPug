@@ -11,7 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 
-class Roulette extends Actor {
+public class Roulette extends Actor {
 
     private Texture rouletteTexture;
     private Texture rouletteTextureReversed;
