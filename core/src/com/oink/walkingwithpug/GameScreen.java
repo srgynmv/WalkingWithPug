@@ -29,6 +29,7 @@ public class GameScreen implements Screen {
     ImageButton pauseButton;
     //DEBUG
     Texture map;
+    Table table;
     //END_DEBUG
 
     float enemyTimer;
@@ -45,8 +46,6 @@ public class GameScreen implements Screen {
         pug = new Pug(0.4f, this);
         roulette = new Roulette(0.25f, this);
 
-        pauseButton = PugGame.makeButton(" ", 1);
-
         //DEBUG
         map = new Texture(Gdx.files.internal("random_map.png"));
 
@@ -56,6 +55,18 @@ public class GameScreen implements Screen {
         //Making viewport and input processor
         stage = new Stage(new StretchViewport(game.worldWidth * game.viewportRatio, game.worldHeight * game.viewportRatio * game.ratio, camera));
         Gdx.input.setInputProcessor(stage);
+
+
+        pauseButton = PugGame.makeButton("pause", stage.getWidth() / Gdx.graphics.getWidth());
+
+        table = new Table();
+        //Align table on the upper left corner
+        table.align(Align.left | Align.top);
+        table.setFillParent(true);
+        table.setTransform(true);
+        table.setSize(stage.getWidth(), stage.getHeight());
+        table.setOrigin(stage.getWidth()/2,stage.getHeight()/2);
+        table.add(pauseButton).width(pauseButton.getWidth()).height(pauseButton.getHeight());
 
         pug.setX(stage.getWidth() / 2 - pug.getWidth() / 2);
 
@@ -68,6 +79,7 @@ public class GameScreen implements Screen {
         stage.addActor(enemiesGroup);
         stage.addActor(pug);
         stage.addActor(roulette);
+        stage.addActor(table);
 
         maxLineLengthSquared = stage.getWidth() / 4;
         maxLineLengthSquared *= maxLineLengthSquared;
@@ -93,6 +105,9 @@ public class GameScreen implements Screen {
         stage.act(delta);
 
         //DEBUG
+        table.setPosition(camera.position.x - stage.getWidth()/2,camera.position.y - stage.getHeight()/2 );
+        table.setScale(camera.zoom);
+
         //Drawing map
 
         stage.getBatch().begin();
