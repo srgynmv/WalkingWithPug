@@ -3,9 +3,7 @@ package com.oink.walkingwithpug;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -84,24 +82,44 @@ public class Roulette extends Actor {
     private void makeListeners(final Roulette roulette) {
         roulette.addListener(new DragListener() {
             @Override
-            public void drag(InputEvent event, float x, float y, int pointer) {
-                //Gdx.app.log("INFO", "Dragging...");
-                isDragging = true;
-                roulette.moveBy(
-                        x - roulette.getOriginX(),
-                        y - roulette.getOriginY()
-                );
-                roulette.setX(MathUtils.clamp(roulette.getX(), 0, roulette.screen.game.worldWidth - roulette.getWidth()));
-                roulette.setY(MathUtils.clamp(roulette.getY(), 0, roulette.screen.game.worldHeight - roulette.getHeight()));
+            public void dragStart(InputEvent event, float x, float y, int pointer) {
+                super.dragStart(event, x, y, pointer);
+                roulette.isDragging = true;
+                Gdx.app.log("INFO", "START Dragging.");
             }
 
-            //Checks drag finish and set isDragging to true
             @Override
-            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                isDragging = false;
-                super.touchUp(event, x, y, pointer, button);
+            public void drag(InputEvent event, float x, float y, int pointer) {
+                super.drag(event, x, y, pointer);
+                roulette.moveBy(x - roulette.getOriginX(), y - roulette.getOriginY());
+            }
+
+            @Override
+            public void dragStop(InputEvent event, float x, float y, int pointer) {
+                super.dragStop(event, x, y, pointer);
+                Gdx.app.log("INFO", "STOP Dragging.");
+                roulette.isDragging = false;
             }
         });
+    }
+
+    @Override
+    public void moveBy(float x, float y) {
+        super.moveBy(x, y);
+        clampInScreenBounds();
+    }
+
+    private void clampInScreenBounds() {
+        setX(MathUtils.clamp(
+                getX(),
+                screen.camera.position.x - screen.stage.getWidth() * screen.camera.zoom / 2,
+                screen.camera.position.x + screen.stage.getWidth() * screen.camera.zoom / 2 - getWidth())
+        );
+        setY(MathUtils.clamp(
+                getY(),
+                screen.camera.position.y - screen.stage.getHeight() * screen.camera.zoom / 2,
+                screen.camera.position.y + screen.stage.getHeight() * screen.camera.zoom / 2 - getHeight())
+        );
     }
 
     private void animateRoulette() {

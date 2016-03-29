@@ -3,6 +3,7 @@ package com.oink.walkingwithpug;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -30,7 +31,7 @@ public class PugGame extends Game {
         batch = new SpriteBatch();
         ratio = Gdx.graphics.getHeight() / (float) Gdx.graphics.getWidth();
         //Loading resources
-        font = loadFont("pixfont.ttf", 32);
+        font = loadFont("pixfont.ttf", 64);
 
         // Creating the main menu
         setScreen(new MainMenuScreen(this));
@@ -79,5 +80,21 @@ public class PugGame extends Game {
         ImageButton button = new ImageButton(buttonUp, buttonDown);
         button.setSize(button.getWidth() * textureScale, button.getHeight() * textureScale);
         return button;
+    }
+
+    static Animation createAnimation(String spriteSheetName, int rows, int cols) {
+        Texture spriteSheet;
+        TextureRegion spriteFrames[];
+        spriteSheet = new Texture(Gdx.files.internal(spriteSheetName));
+        TextureRegion[][] tmp = TextureRegion.split(spriteSheet, spriteSheet.getWidth()/cols, spriteSheet.getHeight()/rows);
+        spriteFrames = new TextureRegion[cols * rows];
+        int index = 0;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                spriteFrames[index++] = tmp[i][j];
+            }
+        }
+        Animation animation = new Animation(1 / 4f, spriteFrames);
+        return animation;
     }
 }

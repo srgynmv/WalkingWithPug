@@ -73,7 +73,7 @@ public class MainMenuScreen implements Screen {
         table = new Table();
         table.setFillParent(true);
 
-        table.align(Align.center | Align.bottom);
+        table.align(Align.bottom);
         table.padBottom(stage.getHeight() / 6);
         table.add(newGameButton).height(newGameButton.getHeight());
         table.add(quitButton).height(quitButton.getHeight());

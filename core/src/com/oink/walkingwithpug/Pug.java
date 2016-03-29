@@ -12,23 +12,9 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 public class Pug extends Actor {
     private TextureRegion pugTexture;
     private GameScreen screen;
-    private float life = 100f;
+    private float scary = 0f;
 
-    Animation createAnimation(String spriteSheetName, int rows, int cols) {
-        Texture spriteSheet;
-        TextureRegion spriteFrames[];
-        spriteSheet = new Texture(Gdx.files.internal(spriteSheetName));
-        TextureRegion[][] tmp = TextureRegion.split(spriteSheet, spriteSheet.getWidth()/cols, spriteSheet.getHeight()/rows);
-        spriteFrames = new TextureRegion[cols * rows];
-        int index = 0;
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                spriteFrames[index++] = tmp[i][j];
-            }
-        }
-        Animation animation = new Animation(1 / 4f, spriteFrames);
-        return animation;
-    }
+    final int maxScaryLevel;
 
     //TESTING
     private Animation pugAnimation;
@@ -37,21 +23,22 @@ public class Pug extends Actor {
     private float speed;
     ///
 
-    void removeLife(float value) {
-        life -= value;
-        if (life < 0) life = 0;
+    void addScary(float value) {
+        scary = Math.min(maxScaryLevel, scary + value);
     }
 
-    int getLife() {
-        return (int)life;
+    int getScaryLevel() {
+        return (int)scary;
     }
 
     public Pug(float scale, GameScreen screen) {
         super();
         this.screen = screen;
 
+        maxScaryLevel = 100;
+
         //TESTING
-        pugAnimation = createAnimation("pug_animated.png", 2, 2);
+        pugAnimation = PugGame.createAnimation("pug_animated.png", 2, 2);
         stateTime = 0;
         speed = 0;
         pugTexture = pugAnimation.getKeyFrame(stateTime, true);
