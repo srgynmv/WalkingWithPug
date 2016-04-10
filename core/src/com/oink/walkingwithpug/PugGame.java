@@ -2,6 +2,7 @@ package com.oink.walkingwithpug;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -10,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 
 /**
  * Main class for the game
@@ -26,12 +28,20 @@ public class PugGame extends Game {
     SpriteBatch batch;
     BitmapFont font;
 
+    boolean isRunning;
+
     @Override
     public void create() {
         batch = new SpriteBatch();
         ratio = Gdx.graphics.getHeight() / (float) Gdx.graphics.getWidth();
         //Loading resources
-        font = loadFont("pixfont.ttf", 64);
+
+        try {
+            font = loadFont("pixfont.ttf", 30);
+        }
+        catch (GdxRuntimeException e) {
+            font = new BitmapFont(Gdx.files.internal("font.fnt"));
+        }
 
         // Creating the main menu
         setScreen(new MainMenuScreen(this));
@@ -65,6 +75,8 @@ public class PugGame extends Game {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(path));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = size;
+        parameter.borderColor = Color.BLACK;
+        parameter.borderWidth = 1.5f;
 
         BitmapFont font = generator.generateFont(parameter);
 
@@ -79,6 +91,7 @@ public class PugGame extends Game {
 
         ImageButton button = new ImageButton(buttonUp, buttonDown);
         button.setSize(button.getWidth() * textureScale, button.getHeight() * textureScale);
+        button.setBounds(0, 0, button.getWidth(), button.getHeight());
         return button;
     }
 

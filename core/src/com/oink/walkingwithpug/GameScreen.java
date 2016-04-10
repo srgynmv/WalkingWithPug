@@ -6,20 +6,20 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Timer;
+import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 
@@ -34,10 +34,16 @@ public class GameScreen implements Screen {
     Texture map;
     Table table;
     Label scaryLabel;
+    Label poopLabel;
+    Label peeLabel;
     //END_DEBUG
 
     float enemyTimer;
     Group enemiesGroup;
+    Group runningGameGroup;
+    Table pauseTable;
+
+    float textureScale;
 
     int maxEnemyCount;
 
@@ -54,6 +60,7 @@ public class GameScreen implements Screen {
 
         //DEBUG
         map = new Texture(Gdx.files.internal("random_map.png"));
+        game.isRunning = true;
 
         //Making camera
         camera = new OrthographicCamera();
@@ -62,11 +69,20 @@ public class GameScreen implements Screen {
         stage = new Stage(new StretchViewport(game.worldWidth * game.viewportRatio, game.worldHeight * game.viewportRatio * game.ratio, camera));
         Gdx.input.setInputProcessor(stage);
 
-        pauseButton = PugGame.makeButton("pause", stage.getWidth() / Gdx.graphics.getWidth());
-        //pauseButton.addListener();
+        textureScale = stage.getWidth() / 1920f;
 
-        Label.LabelStyle style = new Label.LabelStyle(game.font, Color.BLACK);
+        pauseButton = PugGame.makeButton("pause", stage.getWidth() / 1920f);
+        pauseButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                pauseGame();
+            }
+        });
+
+        Label.LabelStyle style = new Label.LabelStyle(game.font, Color.YELLOW);
         scaryLabel = new Label("Scary: 0", style);
+        poopLabel = new Label("Pee: 0", style);
+        peeLabel = new Label("Poop: 0", style);
 
         table = new Table();
         //Align table on the upper left corner
@@ -76,6 +92,10 @@ public class GameScreen implements Screen {
         table.setOrigin(stage.getWidth()/2,stage.getHeight()/2);
         table.add(pauseButton).width(pauseButton.getWidth()).height(pauseButton.getHeight());
         table.add(scaryLabel).expandX().right().padRight(stage.getWidth() / 10);
+//        table.row();
+//        table.add(peeLabel).expandX().right().padRight(stage.getWidth() / 10);
+//        table.row();
+//        table.add(poopLabel).expandX().right().padRight(stage.getWidth() / 10);
 
         pug.setX(stage.getWidth() / 2 - pug.getWidth() / 2);
 
@@ -83,12 +103,18 @@ public class GameScreen implements Screen {
         roulette.setY(stage.getHeight() / 2 - roulette.getHeight() / 2);
 
         enemiesGroup = new Group();
+        runningGameGroup = new Group();
+        pauseTable = createPauseScreen();
+
         enemyTimer = 0;
 
-        stage.addActor(enemiesGroup);
-        stage.addActor(pug);
-        stage.addActor(roulette);
+        stage.addActor(runningGameGroup);
+        runningGameGroup.addActor(enemiesGroup);
+        runningGameGroup.addActor(pug);
+        runningGameGroup.addActor(roulette);
         stage.addActor(table);
+        stage.addActor(pauseTable);
+
 
         maxLineLengthSquared = stage.getWidth() / 4;
         maxLineLengthSquared *= maxLineLengthSquared;
@@ -105,40 +131,47 @@ public class GameScreen implements Screen {
         Gdx.gl20.glClearColor(0, 0.5f, 0, 1);
         Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        //Checks, need to move camera or not
-        updateCamera();
+        if (game.isRunning) {
+            //Checks, need to move camera or not
+            updateCamera();
 
-        //Update matrix for roulette line
-        roulette.rouletteLine.setProjectionMatrix(stage.getCamera().combined);
+            //Update matrix for roulette line
+            roulette.rouletteLine.setProjectionMatrix(stage.getCamera().combined);
 
-        //Update pug levels
-        scaryLabel.setText("Scary: " + pug.getScaryLevel());
-        stage.act(delta);
+            //Update pug levels
+            scaryLabel.setText("Scary: " + pug.getScaryLevel());
+            stage.act(delta);
 
-        //DEBUG
-        table.setPosition(camera.position.x - stage.getWidth()/2,camera.position.y - stage.getHeight()/2 );
-        table.setScale(camera.zoom);
+            //DEBUG
+            table.setPosition(camera.position.x - stage.getWidth() / 2, camera.position.y - stage.getHeight() / 2);
+            table.setScale(camera.zoom);
+            pauseTable.setPosition(camera.position.x - stage.getWidth() / 2, camera.position.y - stage.getHeight() / 2);
+            pauseTable.setScale(camera.zoom);
+            //Drawing map
 
-        //Drawing map
+            //TODO Make scary works better!
+            if (pug.getScaryLevel() >= 100) {
+                pug.remove();
+                roulette.remove();
+            }
+
+            if (enemyTimer > 3f && enemiesGroup.getChildren().size < maxEnemyCount) {
+                enemyTimer = 0;
+                enemiesGroup.addActor(createEnemy());
+            }
+
+            enemyTimer = Math.min(enemyTimer + delta, 4f);
+        }
+        else {
+            //Draw pause background
+            camera.update();
+        }
 
         stage.getBatch().begin();
         stage.getBatch().draw(map, 0, 0, game.worldWidth, game.worldHeight);
         stage.getBatch().end();
 
-        //TODO Make scary works better!
-        if (pug.getScaryLevel() >= 100) {
-            pug.remove();
-            roulette.remove();
-        }
-
-        if (enemyTimer > 3f && enemiesGroup.getChildren().size < maxEnemyCount) {
-            enemyTimer = 0;
-            enemiesGroup.addActor(createEnemy());
-        }
-
         stage.draw();
-
-        enemyTimer = Math.min(enemyTimer + delta, 4f);
     }
 
     private Enemy createEnemy() {
@@ -151,7 +184,7 @@ public class GameScreen implements Screen {
         if (newX >= stage.getCamera().position.x - stage.getWidth() / 2 && newX <= stage.getCamera().position.x + stage.getWidth() / 2) newX += stage.getWidth() * 2;
         if (newY >= stage.getCamera().position.y - stage.getHeight() / 2 && newY <= stage.getCamera().position.y + stage.getHeight() / 2) newY += stage.getHeight() * 2;
         Gdx.app.log("INFO", "Add new enemy at X: " + newX + " and Y: " + newY);
-        return new Enemy(0.55f, newX, newY, this);
+        return new Enemy(0.7f, newX, newY, this);
     }
 
     private void updateCamera() {
@@ -217,6 +250,62 @@ public class GameScreen implements Screen {
         stage.getCamera().update();
     }
 
+    private Table createPauseScreen() {
+        final Table pauseTable = new Table();
+        pauseTable.setFillParent(true);
+        pauseTable.setTransform(true);
+        pauseTable.align(Align.bottom);
+        pauseTable.setOrigin(stage.getWidth() / 2, stage.getHeight() / 2);
+
+        TextureRegion pauseBackgroundTexture = new TextureRegion(new Texture(Gdx.files.internal("pause_background.png")));
+
+        Image backgroundImage = new Image(pauseBackgroundTexture);
+        backgroundImage.setScaling(Scaling.fill);
+        backgroundImage.setSize(
+                pauseBackgroundTexture.getRegionWidth() * textureScale,
+                pauseBackgroundTexture.getRegionHeight() * textureScale
+        );
+
+        ImageButton continueButton = PugGame.makeButton("continue", textureScale);
+        continueButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                continueGame();
+            }
+        });
+        ImageButton exitToMenuButton = PugGame.makeButton("exit_to_menu", textureScale);
+        exitToMenuButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setScreen(new MainMenuScreen(game));
+            }
+        });
+
+        //pauseTable.add(backgroundImage).height(backgroundImage.getHeight()).width(backgroundImage.getWidth());
+        pauseTable.padBottom(stage.getHeight() / 6);
+        pauseTable.addActor(backgroundImage);
+        pauseTable.add(continueButton).height(continueButton.getHeight()).width(continueButton.getWidth()).expandX();
+        pauseTable.add(exitToMenuButton).height(exitToMenuButton.getHeight()).width(exitToMenuButton.getWidth()).expandX();
+        pauseTable.setVisible(false);
+        return pauseTable;
+    }
+
+    private void pauseGame() {
+        game.isRunning = false;
+
+        table.setTouchable(Touchable.disabled);
+        runningGameGroup.setTouchable(Touchable.disabled);
+        pauseTable.setVisible(true);
+    }
+
+    private void continueGame() {
+        game.isRunning = true;
+
+        runningGameGroup.setTouchable(Touchable.enabled);
+        table.setTouchable(Touchable.childrenOnly);
+        pauseTable.setVisible(false);
+    }
+
     @Override
     public void show() {
     }
@@ -227,6 +316,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void pause() {
+        pauseGame();
         //Save data
     }
 

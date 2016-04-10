@@ -48,7 +48,7 @@ public class Roulette extends Actor {
 
         //Make roulette animated
         animationTime = Math.min(animationTime + Gdx.graphics.getDeltaTime(), 0.4f);
-        if (animationTime > 0.3f && !isDragging) {
+        if (animationTime > 0.3f && !isDragging && screen.game.isRunning) {
             animateRoulette();
             animationTime = 0f;
         }

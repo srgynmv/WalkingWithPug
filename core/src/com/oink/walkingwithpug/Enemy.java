@@ -13,7 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class Enemy extends Actor {
     private int life;
-    private Texture rawTexture;
     private TextureRegion enemyTexture;
     private GameScreen screen;
 
@@ -25,14 +24,8 @@ public class Enemy extends Actor {
     Enemy(float scale, float x, float y, GameScreen screen) {
         life = 100;
 
-        rawTexture = new Texture(Gdx.files.internal("enemy_dog.png"));
-        enemyTexture = new TextureRegion(rawTexture);
-        setWidth(enemyTexture.getRegionWidth() * scale);
-        setHeight(enemyTexture.getRegionHeight() * scale);
-        setBounds(0, 0, getWidth(), getHeight());
-        setOrigin(getWidth() / 2, getHeight() / 2);
-        setX(x);
-        setY(y);
+//        rawTexture = new Texture(Gdx.files.internal("enemy_dog.png"));
+//        enemyTexture = new TextureRegion(rawTexture);
         this.screen = screen;
 
         makeListeners(this);
@@ -42,13 +35,21 @@ public class Enemy extends Actor {
         stateTime = 0;
         speed = 0;
         enemyTexture = enemyAnimation.getKeyFrame(stateTime, true);
+
+        setWidth(enemyTexture.getRegionWidth() * scale);
+        setHeight(enemyTexture.getRegionHeight() * scale);
+        setBounds(0, 0, getWidth(), getHeight());
+        setOrigin(getWidth() / 2, getHeight() / 2);
+        setX(x);
+        setY(y);
+
         isRunning = false;
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
         stateTime += Gdx.graphics.getDeltaTime() * speed;
-        if (isRunning) enemyTexture = enemyAnimation.getKeyFrame(stateTime, true);
+        if (isRunning && screen.game.isRunning) enemyTexture = enemyAnimation.getKeyFrame(stateTime, true);
         batch.draw(enemyTexture, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());}
 
     @Override
@@ -94,7 +95,6 @@ public class Enemy extends Actor {
 
     @Override
     public boolean remove() {
-        rawTexture.dispose();
         return super.remove();
     }
 }

@@ -59,7 +59,7 @@ public class Pug extends Actor {
     @Override
     public void draw(Batch batch, float parentAlpha) {
         stateTime += Gdx.graphics.getDeltaTime() * speed;
-        if (isRunning) pugTexture = pugAnimation.getKeyFrame(stateTime, true);
+        if (isRunning && screen.game.isRunning) pugTexture = pugAnimation.getKeyFrame(stateTime, true);
         batch.draw(pugTexture, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
     }
 

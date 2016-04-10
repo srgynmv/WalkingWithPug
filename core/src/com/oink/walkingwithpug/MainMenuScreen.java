@@ -11,8 +11,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 /**
@@ -35,15 +36,15 @@ public class MainMenuScreen implements Screen {
 
     MainMenuScreen(final PugGame game) {
 
+        game.isRunning = false;
+
         backgroundTexture = new Texture(Gdx.files.internal("menu_bgrd.png"));
 
         this.game = game;
         stage = new Stage(new StretchViewport(game.worldWidth * game.viewportRatio, game.worldHeight * game.viewportRatio * game.ratio));
         Gdx.input.setInputProcessor(stage);
 
-
-        textureScale = stage.getWidth() / Gdx.graphics.getWidth();
-
+        textureScale = stage.getWidth() / 1920f;
 
         Gdx.app.log("SCALE", textureScale + "");
         //Create some buttons.
@@ -75,10 +76,12 @@ public class MainMenuScreen implements Screen {
 
         table.align(Align.bottom);
         table.padBottom(stage.getHeight() / 6);
-        table.add(newGameButton).height(newGameButton.getHeight());
-        table.add(quitButton).height(quitButton.getHeight());
+        table.add(newGameButton).height(newGameButton.getHeight()).width(newGameButton.getWidth()).expandX();
+        table.add(quitButton).height(quitButton.getHeight()).width(quitButton.getWidth()).expandX();
 
         stage.addActor(table);
+
+        //stage.setDebugAll(true);
     }
 
 
