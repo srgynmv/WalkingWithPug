@@ -1,4 +1,4 @@
-package com.oink.walkingwithpug.Actors;
+package com.oink.walkingwithpug.actors;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.RandomXS128;
 import com.badlogic.gdx.math.Vector2;
-import com.oink.walkingwithpug.Screens.GameScreen;
+import com.oink.walkingwithpug.screens.GameScreen;
 import com.oink.walkingwithpug.Utils;
 
 public class Pug extends Unit {
@@ -19,9 +19,11 @@ public class Pug extends Unit {
     private TextureRegion pugTexture;
     private GameScreen screen;
 
-    final int maxScaryLevel;
-    final int maxPoopLevel;
-    final int maxPeeLevel;
+    public static final int MAX_SCARY_LEVEL = 100;
+    public static final int MAX_POOP_LEVEL = 100;
+    public static final int MAX_PEE_LEVEL = 100;
+    private static final float POOP_BORDER = 70f;
+    private static final float PEE_BORDER = 60f;
 
     private Animation movingAnimation;
     private Animation peeingAnimation;
@@ -29,22 +31,16 @@ public class Pug extends Unit {
     private boolean isMoving;
     private float speed;
 
-    private float scaryLevel = 0f;
-    private float poopLevel = 0f;
-    private float peeLevel = 0f;
+    private float scaryLevel;
+    private float poopLevel;
+    private float peeLevel;
 
     boolean needToPee;
     boolean needToPoop;
-    private float poopBorder = 70f;
-    private float peeBorder = 60f;
 
     public Pug(float scale, GameScreen screen) {
         super();
         this.screen = screen;
-
-        maxScaryLevel = 100;
-        maxPoopLevel = 100;
-        maxPeeLevel = 100;
 
         movingAnimation = Utils.createAnimation(PUG_MOVING_TEXTURE, 2, 2);
         peeingAnimation = Utils.createAnimation(PUG_PEEING_TEXTURE, 1, 2);
@@ -53,6 +49,9 @@ public class Pug extends Unit {
         speed = 0;
         pugTexture = movingAnimation.getKeyFrame(stateTime, true);
         isMoving = false;
+        scaryLevel = 0f;
+        poopLevel = 0f;
+        peeLevel = 0f;
 
         //Setup actor parameters
         setBounds(getX(), getY(), getWidth(), getHeight());
@@ -94,7 +93,7 @@ public class Pug extends Unit {
         Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
         peeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         Vector2 coordinates = localToParentCoordinates(new Vector2(getWidth() / 2, getHeight() / 7));
-        peeRenderer.circle(coordinates.x, coordinates.y, peeBorder - getPeeLevel());
+        peeRenderer.circle(coordinates.x, coordinates.y, PEE_BORDER - getPeeLevel());
         peeRenderer.end();
 
         Gdx.graphics.getGL20().glDisable(GL20.GL_BLEND);
@@ -104,14 +103,14 @@ public class Pug extends Unit {
     @Override
     public void act(float delta) {
         addNeeds();
-        needToPee = needToPee || ((int)getPeeLevel() > peeBorder);
+        needToPee = needToPee || ((int)getPeeLevel() > PEE_BORDER);
 
         if (needToPee) {
             pee(delta);
             return;
         }
 
-        needToPoop = needToPoop || ((int)getPoopLevel() > poopBorder);
+        needToPoop = needToPoop || ((int)getPoopLevel() > POOP_BORDER);
 
         if (needToPoop) {
             poop(delta);
@@ -149,7 +148,7 @@ public class Pug extends Unit {
         if (Vector2.dst2(getX() + getOriginX(), getY() + getOriginY(),
                 screen.roulette.getX() + screen.roulette.getOriginX(),
                 screen.roulette.getY() + screen.roulette.getOriginY()
-        ) > screen.maxLineLengthSquared) {
+        ) > GameScreen.MAX_LINE_LENGTH_SQUARED) {
             moveToRoulette(eyeVector);
             isMoving = true;
         }
@@ -178,7 +177,7 @@ public class Pug extends Unit {
     }
 
     public void addToScary(float value) {
-        scaryLevel = MathUtils.clamp(scaryLevel + value, 0, maxScaryLevel);
+        scaryLevel = MathUtils.clamp(scaryLevel + value, 0, MAX_SCARY_LEVEL);
     }
 
     public float getPoopLevel() {
@@ -186,7 +185,7 @@ public class Pug extends Unit {
     }
 
     public void addToPoop(float value) {
-        poopLevel = MathUtils.clamp(poopLevel + value, 0, maxPoopLevel);
+        poopLevel = MathUtils.clamp(poopLevel + value, 0, MAX_POOP_LEVEL);
     }
 
     public float getPeeLevel() {
@@ -194,6 +193,6 @@ public class Pug extends Unit {
     }
 
     public void addToPee(float value) {
-        peeLevel = MathUtils.clamp(peeLevel + value, 0, maxPeeLevel);
+        peeLevel = MathUtils.clamp(peeLevel + value, 0, MAX_PEE_LEVEL);
     }
 }

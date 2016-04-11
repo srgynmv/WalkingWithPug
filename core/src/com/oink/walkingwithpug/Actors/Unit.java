@@ -1,4 +1,4 @@
-package com.oink.walkingwithpug.Actors;
+package com.oink.walkingwithpug.actors;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
 

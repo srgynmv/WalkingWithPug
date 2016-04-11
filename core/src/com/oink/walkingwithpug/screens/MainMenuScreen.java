@@ -1,4 +1,4 @@
-package com.oink.walkingwithpug.Screens;
+package com.oink.walkingwithpug.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -27,9 +27,7 @@ public class MainMenuScreen implements Screen {
     private static final String GAME_LOGO_TEXTURE ="menu/game_logo.png";
     private static final String PUG_TEXTURE ="menu/pug.png";
 
-    private float angleFactor = 1;
     final PugGame game;
-
 
     private Texture backgroundTexture;
     private TextureRegion currentPugFrame;
@@ -37,9 +35,10 @@ public class MainMenuScreen implements Screen {
     private Stage stage;
     private Table table;
 
+    private float angleFactor;
+
     ImageButton newGameButton;
     ImageButton quitButton;
-
 
     public MainMenuScreen(final PugGame game) {
 
@@ -49,8 +48,8 @@ public class MainMenuScreen implements Screen {
 
         this.game = game;
         stage = new Stage(new StretchViewport(
-                PugGame.WORLD_WIDTH * PugGame.VIEWPORT_RATIO,
-                PugGame.WORLD_HEIGHT * PugGame.VIEWPORT_RATIO * game.getAspectRatio()
+                PugGame.VIEWPORT_WIDTH,
+                PugGame.VIEWPORT_HEIGHT * game.getAspectRatio()
         ));
         Gdx.input.setInputProcessor(stage);
 
@@ -59,7 +58,7 @@ public class MainMenuScreen implements Screen {
         newGameButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.setScreen(new com.oink.walkingwithpug.Screens.GameScreen(game));
+                game.setScreen(new com.oink.walkingwithpug.screens.GameScreen(game));
             }
         });
         quitButton = Utils.makeButton(BUTTON_QUIT_TEXTURE, PugGame.TEXTURE_SCALE);
@@ -88,19 +87,20 @@ public class MainMenuScreen implements Screen {
 
         stage.addActor(table);
 
+        angleFactor = 1;
         //stage.setDebugAll(true);
     }
 
 
     @Override
     public void show() {
-        
+
     }
 
 
     @Override
     public void render(float delta) {
-        Gdx.gl20.glClearColor(0, 0.5f, 0, 1);
+        Gdx.gl20.glClearColor(1, 1, 1, 1);
         Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (logoSprite.getRotation() > 5) angleFactor = -1;

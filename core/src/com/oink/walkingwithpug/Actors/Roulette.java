@@ -1,4 +1,4 @@
-package com.oink.walkingwithpug.Actors;
+package com.oink.walkingwithpug.actors;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -7,21 +7,22 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
-import com.oink.walkingwithpug.Screens.GameScreen;
+import com.oink.walkingwithpug.screens.GameScreen;
 
 public class Roulette extends Unit {
     private static final String ROULETTE_TEXTURE = "game/actors/Roulette.png";
     private static final String ROULETTE_REVERSED_TEXTURE = "game/actors/RouletteReversed.png";
+    private static final float DY = 5;
+    private static final float ANIMATION_TIME = 0.3f;
 
     private Texture rouletteTexture;
     private Texture rouletteTextureReversed;
     public RouletteLine rouletteLine;
 
-    final float dy = 5;
-    private float animationTime = 0f;
+    private float animationTimer;
 
-    private boolean animationFlag = true;
-    public boolean isDragging = false;
+    private boolean animationFlag;
+    public boolean isDragging;
     boolean reversed;
 
     private GameScreen screen;
@@ -29,6 +30,9 @@ public class Roulette extends Unit {
     public Roulette(float scale, GameScreen screen) {
         this.screen = screen;
         rouletteLine = new RouletteLine(screen.pug, this);
+        animationTimer = 0;
+        animationFlag = true;
+        isDragging = false;
 
         rouletteTexture = new Texture(Gdx.files.internal(ROULETTE_TEXTURE));
         rouletteTextureReversed = new Texture(Gdx.files.internal(ROULETTE_REVERSED_TEXTURE));
@@ -49,10 +53,10 @@ public class Roulette extends Unit {
     public void draw(Batch batch, float parentAlpha) {
 
         //Make roulette animated
-        animationTime = Math.min(animationTime + Gdx.graphics.getDeltaTime(), 0.4f);
-        if (animationTime > 0.3f && !isDragging && screen.game.isRunning) {
+        animationTimer = Math.min(animationTimer + Gdx.graphics.getDeltaTime(), ANIMATION_TIME);
+        if (animationTimer == ANIMATION_TIME && !isDragging && screen.game.isRunning) {
             animateRoulette();
-            animationTime = 0f;
+            animationTimer = 0;
         }
 
         //Draw roulette rope
@@ -126,9 +130,9 @@ public class Roulette extends Unit {
 
     private void animateRoulette() {
         if (animationFlag) {
-            setY(getY() - dy);
+            setY(getY() - DY);
         } else {
-            setY(getY() + dy);
+            setY(getY() + DY);
         }
         animationFlag = !animationFlag;
     }

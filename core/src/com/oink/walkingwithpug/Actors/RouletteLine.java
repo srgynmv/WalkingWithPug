@@ -1,16 +1,17 @@
-package com.oink.walkingwithpug.Actors;
+package com.oink.walkingwithpug.actors;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 
 public class RouletteLine {
-    final float lineWidth = 5;
+    private static final float LINE_WIDTH = 5;
+
     ShapeRenderer renderer;
-    com.oink.walkingwithpug.Actors.Pug pug;
+    Pug pug;
     Roulette roulette;
 
-    RouletteLine(com.oink.walkingwithpug.Actors.Pug pug, Roulette roulette) {
+    RouletteLine(com.oink.walkingwithpug.actors.Pug pug, Roulette roulette) {
         renderer = new ShapeRenderer();
         this.pug = pug;
         this.roulette = roulette;
@@ -21,7 +22,7 @@ public class RouletteLine {
     }
 
     /**
-     * Drawing line with width = lineWidth
+     * Drawing line with width = LINE_WIDTH
      * @param batch
      */
     void draw(Batch batch) {
@@ -31,7 +32,7 @@ public class RouletteLine {
         renderer.begin(ShapeRenderer.ShapeType.Line);
 
         //Drawing lines
-        for (float i = -lineWidth / 2; i <= lineWidth / 2; ++i) {
+        for (float i = -LINE_WIDTH / 2; i <= LINE_WIDTH / 2; ++i) {
             renderer.line(
                     pug.getCenterX() + i,
                     pug.getCenterY(),

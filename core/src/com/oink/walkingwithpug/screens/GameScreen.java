@@ -1,4 +1,4 @@
-package com.oink.walkingwithpug.Screens;
+package com.oink.walkingwithpug.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -24,10 +24,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
-import com.oink.walkingwithpug.Actors.Enemy;
-import com.oink.walkingwithpug.Actors.Pug;
+import com.oink.walkingwithpug.actors.Enemy;
+import com.oink.walkingwithpug.actors.Pug;
 import com.oink.walkingwithpug.PugGame;
-import com.oink.walkingwithpug.Actors.Roulette;
+import com.oink.walkingwithpug.actors.Roulette;
 import com.oink.walkingwithpug.Utils;
 
 public class GameScreen implements Screen {
@@ -37,8 +37,12 @@ public class GameScreen implements Screen {
     private static final String PAUSE_BACKGROUND_TEXTURE = "game/pause_menu/pause_background.png";
     private static final String PAUSE_CONTINUE_TEXTURE = "game/pause_menu/continue";
     private static final String PAUSE_EXIT_TO_MENU_TEXTURE = "game/pause_menu/exit_to_menu";
-
-
+    public static final float CAMERA_SCALING = 0.01f;
+    public static final float CAMERA_MAX_ZOOM = 1.5f;
+    public static final float CAMERA_MIN_ZOOM = 1.0f;
+    public static final float ENEMY_CREATE_TIME = 3f;
+    public static final float MAX_LINE_LENGTH_SQUARED = (PugGame.VIEWPORT_WIDTH / 4)*(PugGame.VIEWPORT_WIDTH / 4);
+    public static final int MAX_ENEMY_COUNT = 3;
 
     public PugGame game;
     public Stage stage;
@@ -58,12 +62,7 @@ public class GameScreen implements Screen {
     VerticalGroup labelGroup;
     Table pauseTable;
 
-
-    int maxEnemyCount;
-
     public OrthographicCamera camera;
-
-    public float maxLineLengthSquared;
 
     GameScreen(final PugGame game) {
         this.game = game;
@@ -73,8 +72,8 @@ public class GameScreen implements Screen {
         camera.setToOrtho(false);
         //Making viewport and input processor
         stage = new Stage(new StretchViewport(
-                PugGame.WORLD_WIDTH * PugGame.VIEWPORT_RATIO,
-                PugGame.WORLD_HEIGHT * PugGame.VIEWPORT_RATIO * game.getAspectRatio(),
+                PugGame.VIEWPORT_WIDTH,
+                PugGame.VIEWPORT_HEIGHT * game.getAspectRatio(),
                 camera
         ));
         Gdx.input.setInputProcessor(stage);
@@ -121,11 +120,7 @@ public class GameScreen implements Screen {
 
         addActorsToStage();
 
-        maxLineLengthSquared = stage.getWidth() / 4;
-        maxLineLengthSquared *= maxLineLengthSquared;
-
         enemyTimer = 0;
-        maxEnemyCount = 3;
 
         game.isRunning = true;
         //stage.setDebugAll(true);
@@ -149,7 +144,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl20.glClearColor(0, 0.5f, 0, 1);
+        Gdx.gl20.glClearColor(1, 1, 1, 1);
         Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (game.isRunning) {
@@ -160,15 +155,15 @@ public class GameScreen implements Screen {
             //Update matrix for roulette line
             roulette.rouletteLine.setProjectionMatrix(stage.getCamera().combined);
             stage.act(delta);
-            if (pug.getScaryLevel() >= 100) {
+            if (pug.getScaryLevel() >= Pug.MAX_SCARY_LEVEL) {
                 pug.remove();
                 roulette.remove();
             }
-            if (enemyTimer > 3f && enemiesGroup.getChildren().size < maxEnemyCount) {
+            if (enemyTimer == ENEMY_CREATE_TIME && enemiesGroup.getChildren().size < MAX_ENEMY_COUNT) {
                 enemyTimer = 0;
                 enemiesGroup.addActor(createEnemy());
             }
-            enemyTimer = Math.min(enemyTimer + delta, 4f);
+            enemyTimer = Math.min(enemyTimer + delta, ENEMY_CREATE_TIME);
         }
         else {
             //Draw pause background
@@ -201,14 +196,14 @@ public class GameScreen implements Screen {
 
     private Enemy createEnemy() {
         //Making coordinates for new enemy
-        Gdx.app.log("Camera x: ", "" + stage.getCamera().position.x);
-        Gdx.app.log("Camera y: ", "" + stage.getCamera().position.y);
-
         float newX = MathUtils.random(0, PugGame.WORLD_WIDTH);
         float newY = MathUtils.random(0, PugGame.WORLD_HEIGHT);
-        if (newX >= stage.getCamera().position.x - stage.getWidth() / 2 && newX <= stage.getCamera().position.x + stage.getWidth() / 2) newX += stage.getWidth() * 2;
-        if (newY >= stage.getCamera().position.y - stage.getHeight() / 2 && newY <= stage.getCamera().position.y + stage.getHeight() / 2) newY += stage.getHeight() * 2;
-        Gdx.app.log("INFO", "Add new enemy at X: " + newX + " and Y: " + newY);
+        if (newX >= stage.getCamera().position.x - stage.getWidth() / 2 && newX <= stage.getCamera().position.x + stage.getWidth() / 2) {
+            newX += stage.getWidth() * 2;
+        }
+        if (newY >= stage.getCamera().position.y - stage.getHeight() / 2 && newY <= stage.getCamera().position.y + stage.getHeight() / 2) {
+            newY += stage.getHeight() * 2;
+        }
         return new Enemy(PugGame.TEXTURE_SCALE, newX, newY, this);
     }
 
@@ -216,15 +211,13 @@ public class GameScreen implements Screen {
      * Else camera moves to roulette.
      */
     private void updateCamera() {
-        float cameraScaling = 0.01f;
-
         //If roulette is moving, zooming up camera;
         //If staying, zooming down
         if (roulette.isDragging) {
-            camera.zoom = Math.min(1.5f, camera.zoom + cameraScaling);
+            camera.zoom = Math.min(CAMERA_MAX_ZOOM, camera.zoom + CAMERA_SCALING);
         }
         else {
-            camera.zoom = Math.max(1.0f, camera.zoom - cameraScaling);
+            camera.zoom = Math.max(CAMERA_MIN_ZOOM, camera.zoom - CAMERA_SCALING);
         }
 
         //Viewport scaled width and height.
