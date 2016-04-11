@@ -7,10 +7,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.oink.walkingwithpug.PugGame;
 import com.oink.walkingwithpug.Screens.GameScreen;
+import com.oink.walkingwithpug.Utils;
 
 public class Enemy extends Unit {
+    public static final String DOG_ANIMATED_TEXTURE =  "game/actors/enemy_dog_animated.png";
     private int life;
     private TextureRegion enemyTexture;
     private GameScreen screen;
@@ -29,7 +30,7 @@ public class Enemy extends Unit {
 
         makeListeners(this);
 
-        enemyAnimation = PugGame.createAnimation("game/actors/enemy_dog_animated.png", 2, 2);
+        enemyAnimation = Utils.createAnimation(DOG_ANIMATED_TEXTURE, 2, 2);
         stateTime = 0;
         stateTime = 0;
         speed = 0;

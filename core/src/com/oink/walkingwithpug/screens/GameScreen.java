@@ -28,8 +28,17 @@ import com.oink.walkingwithpug.Actors.Enemy;
 import com.oink.walkingwithpug.Actors.Pug;
 import com.oink.walkingwithpug.PugGame;
 import com.oink.walkingwithpug.Actors.Roulette;
+import com.oink.walkingwithpug.Utils;
 
 public class GameScreen implements Screen {
+
+    private static final String RANDOM_MAP_TEXTURE = "game/random_map.png";
+    private static final String BUTTON_PAUSE_TEXTURE = "game/buttons/pause";
+    private static final String PAUSE_BACKGROUND_TEXTURE = "game/pause_menu/pause_background.png";
+    private static final String PAUSE_CONTINUE_TEXTURE = "game/pause_menu/continue";
+    private static final String PAUSE_EXIT_TO_MENU_TEXTURE = "game/pause_menu/exit_to_menu";
+
+
 
     public PugGame game;
     public Stage stage;
@@ -49,7 +58,6 @@ public class GameScreen implements Screen {
     VerticalGroup labelGroup;
     Table pauseTable;
 
-    float textureScale;
 
     int maxEnemyCount;
 
@@ -64,14 +72,16 @@ public class GameScreen implements Screen {
         camera = new OrthographicCamera();
         camera.setToOrtho(false);
         //Making viewport and input processor
-        stage = new Stage(new StretchViewport(game.worldWidth * game.viewportRatio, game.worldHeight * game.viewportRatio * game.ratio, camera));
+        stage = new Stage(new StretchViewport(
+                PugGame.WORLD_WIDTH * PugGame.VIEWPORT_RATIO,
+                PugGame.WORLD_HEIGHT * PugGame.VIEWPORT_RATIO * game.getAspectRatio(),
+                camera
+        ));
         Gdx.input.setInputProcessor(stage);
 
-        textureScale = stage.getWidth() / 1920f;
-
         //Settings up the scales of pug and roulette
-        pug = new Pug(textureScale, this);
-        roulette = new Roulette(textureScale, this);
+        pug = new Pug(PugGame.TEXTURE_SCALE, this);
+        roulette = new Roulette(PugGame.TEXTURE_SCALE, this);
 
         //Create groups
         labelGroup = new VerticalGroup();
@@ -79,8 +89,8 @@ public class GameScreen implements Screen {
         runningGameGroup = new Group();
         pauseTable = createPauseScreen();
 
-        map = new Texture(Gdx.files.internal("game/random_map.png"));
-        pauseButton = PugGame.makeButton("game/buttons/pause", textureScale);
+        map = new Texture(Gdx.files.internal(RANDOM_MAP_TEXTURE));
+        pauseButton = Utils.makeButton(BUTTON_PAUSE_TEXTURE, PugGame.TEXTURE_SCALE);
         pauseButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -91,9 +101,9 @@ public class GameScreen implements Screen {
         pauseContainer = new Container<ImageButton>(pauseButton);
 
         Label.LabelStyle style = new Label.LabelStyle(game.font, Color.YELLOW);
-        scaryLabel = new Label("Scary: 0", style);
-        poopLabel = new Label("Poop: 0", style);
-        peeLabel = new Label("Pee: 0", style);
+        scaryLabel = new Label("", style);
+        poopLabel = new Label("", style);
+        peeLabel = new Label("", style);
 
         setUiParameters(labelGroup);
         setUiParameters(pauseContainer);
@@ -166,7 +176,7 @@ public class GameScreen implements Screen {
         }
 
         stage.getBatch().begin();
-        stage.getBatch().draw(map, 0, 0, game.worldWidth, game.worldHeight);
+        stage.getBatch().draw(map, 0, 0, PugGame.WORLD_WIDTH, PugGame.WORLD_HEIGHT);
         stage.getBatch().end();
 
         stage.draw();
@@ -194,12 +204,12 @@ public class GameScreen implements Screen {
         Gdx.app.log("Camera x: ", "" + stage.getCamera().position.x);
         Gdx.app.log("Camera y: ", "" + stage.getCamera().position.y);
 
-        float newX = MathUtils.random(0, game.worldWidth);
-        float newY = MathUtils.random(0, game.worldHeight);
+        float newX = MathUtils.random(0, PugGame.WORLD_WIDTH);
+        float newY = MathUtils.random(0, PugGame.WORLD_HEIGHT);
         if (newX >= stage.getCamera().position.x - stage.getWidth() / 2 && newX <= stage.getCamera().position.x + stage.getWidth() / 2) newX += stage.getWidth() * 2;
         if (newY >= stage.getCamera().position.y - stage.getHeight() / 2 && newY <= stage.getCamera().position.y + stage.getHeight() / 2) newY += stage.getHeight() * 2;
         Gdx.app.log("INFO", "Add new enemy at X: " + newX + " and Y: " + newY);
-        return new Enemy(textureScale, newX, newY, this);
+        return new Enemy(PugGame.TEXTURE_SCALE, newX, newY, this);
     }
 
     /**If player doesn't touch screen, camera translates to rouletteLineMiddle.
@@ -242,8 +252,8 @@ public class GameScreen implements Screen {
                 0
         );
 
-        camera.position.x = MathUtils.clamp(camera.position.x, effectiveViewportWidth / 2, game.worldWidth - effectiveViewportWidth / 2);
-        camera.position.y = MathUtils.clamp(camera.position.y, effectiveViewportHeight / 2, game.worldWidth - effectiveViewportHeight / 2);
+        camera.position.x = MathUtils.clamp(camera.position.x, effectiveViewportWidth / 2, PugGame.WORLD_WIDTH - effectiveViewportWidth / 2);
+        camera.position.y = MathUtils.clamp(camera.position.y, effectiveViewportHeight / 2, PugGame.WORLD_WIDTH - effectiveViewportHeight / 2);
     }
 
     private void dragToRoulette(float effectiveViewportWidth, float effectiveViewportHeight) {
@@ -257,20 +267,20 @@ public class GameScreen implements Screen {
         camera.position.x = MathUtils.clamp(
                 camera.position.x + rouletteDx * Gdx.graphics.getDeltaTime(),
                 effectiveViewportWidth / 2,
-                game.worldWidth - effectiveViewportWidth / 2
+                PugGame.WORLD_WIDTH - effectiveViewportWidth / 2
         );
 
         camera.position.y = MathUtils.clamp(
-                camera.position.y + rouletteDy / game.ratio * Gdx.graphics.getDeltaTime(),
+                camera.position.y + rouletteDy / game.getAspectRatio() * Gdx.graphics.getDeltaTime(),
                 effectiveViewportHeight / 2,
-                game.worldWidth - effectiveViewportHeight / 2
+                PugGame.WORLD_WIDTH - effectiveViewportHeight / 2
         );
 
         roulette.moveBy((camera.position.x - oldCameraPosition.x), (camera.position.y - oldCameraPosition.y));
     }
 
     private Table createPauseScreen() {
-        TextureRegion pauseBackgroundTexture = new TextureRegion(new Texture(Gdx.files.internal("game/pause_menu/pause_background.png")));
+        TextureRegion pauseBackgroundTexture = new TextureRegion(new Texture(Gdx.files.internal(PAUSE_BACKGROUND_TEXTURE)));
         final Table pauseTable = new Table();
         Image backgroundImage = new Image(pauseBackgroundTexture);
 
@@ -279,18 +289,18 @@ public class GameScreen implements Screen {
 
         backgroundImage.setScaling(Scaling.fill);
         backgroundImage.setSize(
-                pauseBackgroundTexture.getRegionWidth() * textureScale,
-                pauseBackgroundTexture.getRegionHeight() * textureScale
+                pauseBackgroundTexture.getRegionWidth() * PugGame.TEXTURE_SCALE,
+                pauseBackgroundTexture.getRegionHeight() * PugGame.TEXTURE_SCALE
         );
 
-        ImageButton continueButton = PugGame.makeButton("game/pause_menu/continue", textureScale);
+        ImageButton continueButton = Utils.makeButton(PAUSE_CONTINUE_TEXTURE, PugGame.TEXTURE_SCALE);
         continueButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 continueGame();
             }
         });
-        ImageButton exitToMenuButton = PugGame.makeButton("game/pause_menu/exit_to_menu", textureScale);
+        ImageButton exitToMenuButton = Utils.makeButton(PAUSE_EXIT_TO_MENU_TEXTURE, PugGame.TEXTURE_SCALE);
         exitToMenuButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {

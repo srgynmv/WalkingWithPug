@@ -14,13 +14,22 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.oink.walkingwithpug.PugGame;
+import com.oink.walkingwithpug.Utils;
 
 /**
  * This class makes a new game and exit buttons on the screen.
  */
 public class MainMenuScreen implements Screen {
 
+    private static final String BACKGROUND_TEXTURE = "menu/background.png";
+    private static final String BUTTON_NEW_GAME_TEXTURE = "menu/buttons/new_game";
+    private static final String BUTTON_QUIT_TEXTURE ="menu/buttons/quit";
+    private static final String GAME_LOGO_TEXTURE ="menu/game_logo.png";
+    private static final String PUG_TEXTURE ="menu/pug.png";
+
+    private float angleFactor = 1;
     final PugGame game;
+
 
     private Texture backgroundTexture;
     private TextureRegion currentPugFrame;
@@ -31,30 +40,29 @@ public class MainMenuScreen implements Screen {
     ImageButton newGameButton;
     ImageButton quitButton;
 
-    float textureScale;
 
     public MainMenuScreen(final PugGame game) {
 
         game.isRunning = false;
 
-        backgroundTexture = new Texture(Gdx.files.internal("menu/background.png"));
+        backgroundTexture = new Texture(Gdx.files.internal(BACKGROUND_TEXTURE));
 
         this.game = game;
-        stage = new Stage(new StretchViewport(game.worldWidth * game.viewportRatio, game.worldHeight * game.viewportRatio * game.ratio));
+        stage = new Stage(new StretchViewport(
+                PugGame.WORLD_WIDTH * PugGame.VIEWPORT_RATIO,
+                PugGame.WORLD_HEIGHT * PugGame.VIEWPORT_RATIO * game.getAspectRatio()
+        ));
         Gdx.input.setInputProcessor(stage);
 
-        textureScale = stage.getWidth() / 1920f;
-
-        Gdx.app.log("SCALE", textureScale + "");
         //Create some buttons.
-        newGameButton = PugGame.makeButton("menu/buttons/new_game", textureScale);
+        newGameButton = Utils.makeButton(BUTTON_NEW_GAME_TEXTURE, PugGame.TEXTURE_SCALE);
         newGameButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setScreen(new com.oink.walkingwithpug.Screens.GameScreen(game));
             }
         });
-        quitButton = PugGame.makeButton("menu/buttons/quit", textureScale);
+        quitButton = Utils.makeButton(BUTTON_QUIT_TEXTURE, PugGame.TEXTURE_SCALE);
         quitButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -63,12 +71,12 @@ public class MainMenuScreen implements Screen {
         });
 
         //Create logo with properties.
-        logoSprite = new Sprite(new Texture(Gdx.files.internal("menu/game_logo.png")));
-        logoSprite.setSize(logoSprite.getWidth() * textureScale, logoSprite.getHeight() * textureScale);
+        logoSprite = new Sprite(new Texture(Gdx.files.internal(GAME_LOGO_TEXTURE)));
+        logoSprite.setSize(logoSprite.getWidth() * PugGame.TEXTURE_SCALE, logoSprite.getHeight() * PugGame.TEXTURE_SCALE);
         logoSprite.setOrigin(logoSprite.getWidth() / 2, logoSprite.getHeight() / 2);
         logoSprite.setPosition(stage.getWidth() * 2f / 5f - logoSprite.getOriginX(), stage.getHeight() * 3f / 4f - logoSprite.getOriginY());
 
-        currentPugFrame = new TextureRegion(new Texture(Gdx.files.internal("menu/pug.png")));
+        currentPugFrame = new TextureRegion(new Texture(Gdx.files.internal(PUG_TEXTURE)));
 
         table = new Table();
         table.setFillParent(true);
@@ -89,7 +97,6 @@ public class MainMenuScreen implements Screen {
         
     }
 
-    float angleFactor = 1;
 
     @Override
     public void render(float delta) {
@@ -107,8 +114,8 @@ public class MainMenuScreen implements Screen {
                 currentPugFrame,
                 stage.getWidth() / 2 - stage.getWidth() / 20,
                 stage.getHeight() / 2 - stage.getHeight() / 20,
-                currentPugFrame.getRegionWidth() * textureScale,
-                currentPugFrame.getRegionHeight() * textureScale
+                currentPugFrame.getRegionWidth() * PugGame.TEXTURE_SCALE,
+                currentPugFrame.getRegionHeight() * PugGame.TEXTURE_SCALE
         );
         logoSprite.draw(stage.getBatch());
         stage.getBatch().end();

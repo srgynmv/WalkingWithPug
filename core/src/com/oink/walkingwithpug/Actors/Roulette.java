@@ -10,6 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.oink.walkingwithpug.Screens.GameScreen;
 
 public class Roulette extends Unit {
+    private static final String ROULETTE_TEXTURE = "game/actors/Roulette.png";
+    private static final String ROULETTE_REVERSED_TEXTURE = "game/actors/RouletteReversed.png";
 
     private Texture rouletteTexture;
     private Texture rouletteTextureReversed;
@@ -28,8 +30,8 @@ public class Roulette extends Unit {
         this.screen = screen;
         rouletteLine = new RouletteLine(screen.pug, this);
 
-        rouletteTexture = new Texture(Gdx.files.internal("game/actors/Roulette.png"));
-        rouletteTextureReversed = new Texture(Gdx.files.internal("game/actors/RouletteReversed.png"));
+        rouletteTexture = new Texture(Gdx.files.internal(ROULETTE_TEXTURE));
+        rouletteTextureReversed = new Texture(Gdx.files.internal(ROULETTE_REVERSED_TEXTURE));
 
         setHeight(rouletteTexture.getHeight() * scale);
         setWidth(rouletteTexture.getWidth() * scale);

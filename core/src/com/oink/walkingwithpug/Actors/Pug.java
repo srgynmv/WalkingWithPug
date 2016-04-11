@@ -9,10 +9,13 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.RandomXS128;
 import com.badlogic.gdx.math.Vector2;
-import com.oink.walkingwithpug.PugGame;
 import com.oink.walkingwithpug.Screens.GameScreen;
+import com.oink.walkingwithpug.Utils;
 
 public class Pug extends Unit {
+    private static final String PUG_MOVING_TEXTURE = "game/actors/pug_animated.png";
+    private static final String PUG_PEEING_TEXTURE = "game/actors/pug_peeing.png";
+
     private TextureRegion pugTexture;
     private GameScreen screen;
 
@@ -43,8 +46,8 @@ public class Pug extends Unit {
         maxPoopLevel = 100;
         maxPeeLevel = 100;
 
-        movingAnimation = PugGame.createAnimation("game/actors/pug_animated.png", 2, 2);
-        peeingAnimation = PugGame.createAnimation("game/actors/pug_peeing.png", 1, 2);
+        movingAnimation = Utils.createAnimation(PUG_MOVING_TEXTURE, 2, 2);
+        peeingAnimation = Utils.createAnimation(PUG_PEEING_TEXTURE, 1, 2);
 
         stateTime = 0;
         speed = 0;
