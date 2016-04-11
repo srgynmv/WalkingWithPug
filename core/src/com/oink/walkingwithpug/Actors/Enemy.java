@@ -1,17 +1,16 @@
-package com.oink.walkingwithpug;
+package com.oink.walkingwithpug.Actors;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.oink.walkingwithpug.PugGame;
+import com.oink.walkingwithpug.Screens.GameScreen;
 
-public class Enemy extends Actor {
+public class Enemy extends Unit {
     private int life;
     private TextureRegion enemyTexture;
     private GameScreen screen;
@@ -21,7 +20,7 @@ public class Enemy extends Actor {
     private boolean isRunning;
     private float speed;
 
-    Enemy(float scale, float x, float y, GameScreen screen) {
+    public Enemy(float scale, float x, float y, GameScreen screen) {
         life = 100;
 
 //        rawTexture = new Texture(Gdx.files.internal("enemy_dog.png"));
@@ -30,16 +29,18 @@ public class Enemy extends Actor {
 
         makeListeners(this);
 
-        enemyAnimation = PugGame.createAnimation("enemy_dog_animated.png", 2, 2);
+        enemyAnimation = PugGame.createAnimation("game/actors/enemy_dog_animated.png", 2, 2);
         stateTime = 0;
         stateTime = 0;
         speed = 0;
         enemyTexture = enemyAnimation.getKeyFrame(stateTime, true);
 
-        setWidth(enemyTexture.getRegionWidth() * scale);
-        setHeight(enemyTexture.getRegionHeight() * scale);
+        setWidth(enemyTexture.getRegionWidth());
+        setHeight(enemyTexture.getRegionHeight());
         setBounds(0, 0, getWidth(), getHeight());
         setOrigin(getWidth() / 2, getHeight() / 2);
+
+        setScale(scale);
         setX(x);
         setY(y);
 
@@ -66,7 +67,7 @@ public class Enemy extends Actor {
         if (Vector2.dst(getX() + getOriginX(), getY() + getOriginY(),
                 screen.pug.getX() + screen.pug.getOriginX(),
                 screen.pug.getY() + screen.pug.getOriginY()
-        ) > screen.pug.getHeight()) {
+        ) > screen.pug.getHeight() * screen.pug.getScaleY()) {
             moveBy(eyeVector.x, eyeVector.y);
 
             speed = eyeVector.len() / 4;
@@ -80,7 +81,7 @@ public class Enemy extends Actor {
         else {
             //TODO Make adding scary better!
             isRunning = false;
-            screen.pug.addScary(1f * delta);
+            screen.pug.addToScary(2f * delta);
         }
     }
 

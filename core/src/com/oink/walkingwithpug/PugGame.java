@@ -18,17 +18,17 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
  */
 public class PugGame extends Game {
     //Ratio that keeps screen proportion right
-    float ratio;
+    public float ratio;
 
-    final float viewportRatio = 0.1f;
-    final int worldWidth = 10000;
-    final int worldHeight = 10000;
+    public final float viewportRatio = 0.1f;
+    public final int worldWidth = 10000;
+    public final int worldHeight = 10000;
     //The maximum possible length of the rope in which pug is not running to roulette
 
-    SpriteBatch batch;
-    BitmapFont font;
+    public SpriteBatch batch;
+    public BitmapFont font;
 
-    boolean isRunning;
+    public boolean isRunning;
 
     @Override
     public void create() {
@@ -37,14 +37,14 @@ public class PugGame extends Game {
         //Loading resources
 
         try {
-            font = loadFont("pixfont.ttf", 30);
+            font = loadFont("fonts/raw_font.ttf", 30);
         }
         catch (GdxRuntimeException e) {
-            font = new BitmapFont(Gdx.files.internal("font.fnt"));
+            font = new BitmapFont(Gdx.files.internal("fonts/font.fnt"));
         }
 
         // Creating the main menu
-        setScreen(new MainMenuScreen(this));
+        setScreen(new com.oink.walkingwithpug.Screens.MainMenuScreen(this));
 
     }
 
@@ -64,6 +64,8 @@ public class PugGame extends Game {
         super.dispose();
     }
 
+
+    //TODO: Move this functions to separated utils class
     /**
      * Converts .ttf font to the bitmap font with required size
      *
@@ -85,7 +87,7 @@ public class PugGame extends Game {
         return font;
     }
 
-    static ImageButton makeButton(String name, float textureScale) {
+    public static ImageButton makeButton(String name, float textureScale) {
         TextureRegionDrawable buttonUp = new TextureRegionDrawable(new TextureRegion(new Texture(name + ".png")));
         TextureRegionDrawable buttonDown = new TextureRegionDrawable(new TextureRegion(new Texture(name + "_pressed.png")));
 
@@ -95,10 +97,9 @@ public class PugGame extends Game {
         return button;
     }
 
-    static Animation createAnimation(String spriteSheetName, int rows, int cols) {
-        Texture spriteSheet;
+    public static Animation createAnimation(String spriteSheetName, int rows, int cols) {
         TextureRegion spriteFrames[];
-        spriteSheet = new Texture(Gdx.files.internal(spriteSheetName));
+        Texture spriteSheet = new Texture(Gdx.files.internal(spriteSheetName));
         TextureRegion[][] tmp = TextureRegion.split(spriteSheet, spriteSheet.getWidth()/cols, spriteSheet.getHeight()/rows);
         spriteFrames = new TextureRegion[cols * rows];
         int index = 0;
@@ -107,7 +108,7 @@ public class PugGame extends Game {
                 spriteFrames[index++] = tmp[i][j];
             }
         }
-        Animation animation = new Animation(1 / 4f, spriteFrames);
+        Animation animation = new Animation(1f / (rows * cols), spriteFrames);
         return animation;
     }
 }

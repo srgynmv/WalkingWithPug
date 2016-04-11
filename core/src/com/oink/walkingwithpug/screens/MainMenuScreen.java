@@ -1,4 +1,4 @@
-package com.oink.walkingwithpug;
+package com.oink.walkingwithpug.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -12,9 +12,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.oink.walkingwithpug.PugGame;
 
 /**
  * This class makes a new game and exit buttons on the screen.
@@ -34,11 +33,11 @@ public class MainMenuScreen implements Screen {
 
     float textureScale;
 
-    MainMenuScreen(final PugGame game) {
+    public MainMenuScreen(final PugGame game) {
 
         game.isRunning = false;
 
-        backgroundTexture = new Texture(Gdx.files.internal("menu_bgrd.png"));
+        backgroundTexture = new Texture(Gdx.files.internal("menu/background.png"));
 
         this.game = game;
         stage = new Stage(new StretchViewport(game.worldWidth * game.viewportRatio, game.worldHeight * game.viewportRatio * game.ratio));
@@ -48,14 +47,14 @@ public class MainMenuScreen implements Screen {
 
         Gdx.app.log("SCALE", textureScale + "");
         //Create some buttons.
-        newGameButton = PugGame.makeButton("new_game", textureScale);
+        newGameButton = PugGame.makeButton("menu/buttons/new_game", textureScale);
         newGameButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.setScreen(new GameScreen(game));
+                game.setScreen(new com.oink.walkingwithpug.Screens.GameScreen(game));
             }
         });
-        quitButton = PugGame.makeButton("quit", textureScale);
+        quitButton = PugGame.makeButton("menu/buttons/quit", textureScale);
         quitButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -64,12 +63,12 @@ public class MainMenuScreen implements Screen {
         });
 
         //Create logo with properties.
-        logoSprite = new Sprite(new Texture(Gdx.files.internal("game_logo.png")));
+        logoSprite = new Sprite(new Texture(Gdx.files.internal("menu/game_logo.png")));
         logoSprite.setSize(logoSprite.getWidth() * textureScale, logoSprite.getHeight() * textureScale);
         logoSprite.setOrigin(logoSprite.getWidth() / 2, logoSprite.getHeight() / 2);
         logoSprite.setPosition(stage.getWidth() * 2f / 5f - logoSprite.getOriginX(), stage.getHeight() * 3f / 4f - logoSprite.getOriginY());
 
-        currentPugFrame = new TextureRegion(new Texture(Gdx.files.internal("menu_pug.png")));
+        currentPugFrame = new TextureRegion(new Texture(Gdx.files.internal("menu/pug.png")));
 
         table = new Table();
         table.setFillParent(true);

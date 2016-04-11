@@ -1,4 +1,4 @@
-package com.oink.walkingwithpug;
+package com.oink.walkingwithpug.Actors;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -7,16 +7,16 @@ import com.badlogic.gdx.math.Matrix4;
 public class RouletteLine {
     final float lineWidth = 5;
     ShapeRenderer renderer;
-    Pug pug;
+    com.oink.walkingwithpug.Actors.Pug pug;
     Roulette roulette;
 
-    RouletteLine(Pug pug, Roulette roulette) {
+    RouletteLine(com.oink.walkingwithpug.Actors.Pug pug, Roulette roulette) {
         renderer = new ShapeRenderer();
         this.pug = pug;
         this.roulette = roulette;
     }
 
-    void setProjectionMatrix(Matrix4 matrix) {
+    public void setProjectionMatrix(Matrix4 matrix) {
         renderer.setProjectionMatrix(matrix);
     }
 
