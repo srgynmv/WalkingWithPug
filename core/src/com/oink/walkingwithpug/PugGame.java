@@ -3,31 +3,29 @@ package com.oink.walkingwithpug;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.oink.walkingwithpug.screens.MainMenuScreen;
 
 /**
  * Main class for the game
  */
 public class PugGame extends Game {
     public static final float VIEWPORT_RATIO = 0.1f;
-    public static final int WORLD_WIDTH = 10000;
-    public static final int WORLD_HEIGHT = 10000;
-    public static final float VIEWPORT_WIDTH = WORLD_WIDTH * VIEWPORT_RATIO;
-    public static final float VIEWPORT_HEIGHT = WORLD_HEIGHT * VIEWPORT_RATIO;
+    public static final int WORLD_WIDTH = 6400;
+    public static final int WORLD_HEIGHT = 6400;
+    public static final float MENU_VIEWPORT_WIDTH = 1000;
+    public static final float MENU_VIEWPORT_HEIGHT = 1000;
+    public static final float GAME_VIEWPORT_WIDTH = 500;
+    public static final float GAME_VIEWPORT_HEIGHT = 500;
     public static final float BASE_SCREEN_WIDTH = 1920f;
-    public static final float TEXTURE_SCALE = VIEWPORT_WIDTH / BASE_SCREEN_WIDTH;
-    public static final int FONT_SIZE = 30;
-    private static final String TTF_FONT = "fonts/raw_font.ttf";
-    private static final String BITMAP_FONT = "fonts/font.fnt";
-
+    public static final float MENU_TEXTURE_SCALE = MENU_VIEWPORT_WIDTH / BASE_SCREEN_WIDTH;
+    public static final float GAME_TEXTURE_SCALE = GAME_VIEWPORT_WIDTH / BASE_SCREEN_WIDTH;
+    public static final int FONT_SIZE = 20;
+    public static final float FONT_BORDER_WIDTH = 1.5f;
+    public static final String TTF_FONT = "fonts/raw_font.ttf";
+    public static final String BITMAP_FONT = "fonts/font.fnt";
 
     public SpriteBatch batch;
     public BitmapFont font;
@@ -41,7 +39,7 @@ public class PugGame extends Game {
         //Loading resources
 
         try {
-            font = Utils.loadFont(TTF_FONT, FONT_SIZE);
+            font = Utils.loadFont(TTF_FONT, FONT_SIZE, Color.BLACK, FONT_BORDER_WIDTH);
         }
         catch (GdxRuntimeException e) {
             font = new BitmapFont(Gdx.files.internal(BITMAP_FONT));

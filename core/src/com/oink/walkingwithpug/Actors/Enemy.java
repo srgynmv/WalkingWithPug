@@ -24,8 +24,6 @@ public class Enemy extends Unit {
 
     public Enemy(float scale, float x, float y, GameScreen screen) {
         life = 100;
-//        rawTexture = new Texture(Gdx.files.internal("enemy_dog.png"));
-//        enemyTexture = new TextureRegion(rawTexture);
         this.screen = screen;
 
         makeListeners(this);
@@ -36,12 +34,10 @@ public class Enemy extends Unit {
         speed = 0;
         enemyTexture = enemyAnimation.getKeyFrame(stateTime, true);
 
-        setWidth(enemyTexture.getRegionWidth());
-        setHeight(enemyTexture.getRegionHeight());
+        setWidth(enemyTexture.getRegionWidth() * scale);
+        setHeight(enemyTexture.getRegionHeight() * scale);
         setBounds(0, 0, getWidth(), getHeight());
         setOrigin(getWidth() / 2, getHeight() / 2);
-
-        setScale(scale);
         setX(x);
         setY(y);
 
@@ -62,13 +58,11 @@ public class Enemy extends Unit {
         }
 
         //Make vector from enemy to pug
-        Vector2 eyeVector = new Vector2((screen.pug.getX() - getX()) * delta, (screen.pug.getY() - getY()) * delta);
+        Vector2 eyeVector = new Vector2(getVectorTo(screen.pug));
+        eyeVector.scl(delta);
 
         //If distance > 0 move and rotate to pug
-        if (Vector2.dst(getX() + getOriginX(), getY() + getOriginY(),
-                screen.pug.getX() + screen.pug.getOriginX(),
-                screen.pug.getY() + screen.pug.getOriginY()
-        ) > screen.pug.getHeight() * screen.pug.getScaleY()) {
+        if (getDistanceTo(screen.pug) > screen.pug.getHeight() * screen.pug.getScaleY()) {
             moveBy(eyeVector.x, eyeVector.y);
 
             speed = eyeVector.len() / 4;

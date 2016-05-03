@@ -37,14 +37,16 @@ public class Roulette extends Unit {
         rouletteTexture = new Texture(Gdx.files.internal(ROULETTE_TEXTURE));
         rouletteTextureReversed = new Texture(Gdx.files.internal(ROULETTE_REVERSED_TEXTURE));
 
-        setHeight(rouletteTexture.getHeight() * scale);
-        setWidth(rouletteTexture.getWidth() * scale);
+//        setHeight(rouletteTexture.getHeight() * scale);
+//        setWidth(rouletteTexture.getWidth() * scale);
+        setHeight(rouletteTexture.getHeight());
+        setWidth(rouletteTexture.getWidth());
         setBounds(getX(), getY(), getWidth(), getHeight());
         setTouchable(Touchable.enabled);
 
         makeListeners(this);
 
-        setOrigin(getX() + getWidth() / 2 , getY() + getHeight() / 2);
+        setOrigin(getWidth() / 2, getHeight() / 2);
 
         reversed = true;
     }
@@ -55,7 +57,7 @@ public class Roulette extends Unit {
         //Make roulette animated
         animationTimer = Math.min(animationTimer + Gdx.graphics.getDeltaTime(), ANIMATION_TIME);
         if (animationTimer == ANIMATION_TIME && !isDragging && screen.game.isRunning) {
-            animateRoulette();
+            //animateRoulette();
             animationTimer = 0;
         }
 
@@ -74,12 +76,12 @@ public class Roulette extends Unit {
 
     private void correctReverse() {
         if (reversed) {
-            if (getX() + getOriginX() < screen.pug.getCenterX()) {
+            if (getCenterX() < screen.pug.getCenterX()) {
                 reversed = false;
             }
         }
         else {
-            if (getX() + getOriginX() > screen.pug.getCenterX()) {
+            if (getCenterX() > screen.pug.getCenterX()) {
                 reversed = true;
             }
         }
