@@ -36,7 +36,6 @@ public class Enemy extends Unit {
 
         setWidth(enemyTexture.getRegionWidth() * scale);
         setHeight(enemyTexture.getRegionHeight() * scale);
-        setBounds(0, 0, getWidth(), getHeight());
         setOrigin(getWidth() / 2, getHeight() / 2);
         setX(x);
         setY(y);

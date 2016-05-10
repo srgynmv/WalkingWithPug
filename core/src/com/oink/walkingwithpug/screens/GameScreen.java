@@ -77,6 +77,7 @@ public class GameScreen implements Screen {
         //Making camera
         camera = new OrthographicCamera();
         camera.setToOrtho(false);
+
         //Making viewport and input processor
         stage = new Stage(new StretchViewport(
                 PugGame.GAME_VIEWPORT_WIDTH,
@@ -85,14 +86,16 @@ public class GameScreen implements Screen {
         ));
         Gdx.input.setInputProcessor(stage);
 
+        //Creating map
         map = new Map(this);
         configureActors();
         addActorsToStage();
 
-        enemyTimer = 0;
-
+        //Initialize the position of camera at start
         camera.position.x = map.getHomePosition().x;
         camera.position.y = map.getHomePosition().y;
+
+        enemyTimer = 0;
 
         game.isRunning = true;
         //stage.setDebugAll(true);
@@ -100,14 +103,15 @@ public class GameScreen implements Screen {
 
     private void configureActors() {
         //Settings up the scales of pug and roulette
-        pug = new Pug(PugGame.GAME_TEXTURE_SCALE, this);
-        roulette = new Roulette(PugGame.GAME_TEXTURE_SCALE, this);
+        pug = new Pug(this);
+        roulette = new Roulette(this);
 
         //Create groups
         labelGroup = new VerticalGroup();
         enemiesGroup = new Group();
         runningGameGroup = new Group();
 
+        //Create screens
         pauseTable = createPauseScreen();
         loseTable = createLoseScreen();
 
@@ -132,6 +136,9 @@ public class GameScreen implements Screen {
         pug.setCenterPosition(map.getHomePosition().x, map.getHomePosition().y);
     }
 
+    /**
+     * Creating buttons for this stage.
+     */
     private void createButtons() {
         pauseButton = Utils.makeButton(BUTTON_PAUSE_TEXTURE, PugGame.GAME_TEXTURE_SCALE);
         pauseButton.addListener(new ChangeListener() {
@@ -142,12 +149,18 @@ public class GameScreen implements Screen {
         });
     }
 
+    /**
+     * Creating labels for this stage
+     */
     private void createLabels() {
         scaryLabel = Utils.makeLabel("", game.font, Color.YELLOW);
         poopLabel = Utils.makeLabel("", game.font, Color.YELLOW);
         peeLabel = Utils.makeLabel("", game.font, Color.YELLOW);
     }
 
+    /**
+     * Add elements to screen in the correct order.
+     */
     private void addActorsToStage() {
         labelGroup.addActor(scaryLabel);
         labelGroup.addActor(peeLabel);
@@ -163,6 +176,10 @@ public class GameScreen implements Screen {
         stage.addActor(loseTable);
     }
 
+    /**
+     * Setup start parameters like Transform, FillParent to true and origin to center.
+     * @param group setting up parameters of this group
+     */
     private void setUiParameters(WidgetGroup group) {
         group.setFillParent(true);
         group.setTransform(true);
@@ -171,11 +188,11 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl20.glClearColor(1, 1, 1, 1);
+        //Gdx.gl20.glClearColor(0, 1, 0, 1);
         Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (game.isRunning) {
-            //Checks, need to move camera or not
+            //Update camera position and ui position
             updateCamera();
             updateUi();
 
@@ -186,6 +203,8 @@ public class GameScreen implements Screen {
             if (pug.getScaryLevel() >= Pug.MAX_SCARY_LEVEL) {
                 loseGame();
             }
+
+            //Creating enemies in runtime
             if (enemyTimer == ENEMY_CREATE_TIME && enemiesGroup.getChildren().size < MAX_ENEMY_COUNT) {
                 enemyTimer = 0;
                 enemiesGroup.addActor(createEnemy());
@@ -196,10 +215,15 @@ public class GameScreen implements Screen {
             //Draw pause background
             camera.update();
         }
-        map.draw(stage.getBatch());
+
+        //Drawing map and actors
+        map.draw();
         stage.draw();
     }
 
+    /**
+     * Move and scales ui to left bottom corner of screen, updates info of ui.
+     */
     private void updateUi() {
         //Update pug levels
         scaryLabel.setText("Scary: " + (int)pug.getScaryLevel());
@@ -225,6 +249,10 @@ public class GameScreen implements Screen {
         labelGroup.setOrigin(labelGroup.getWidth(), labelGroup.getHeight());
     }
 
+    /**
+     * Creates enemy at the random position.
+     * @return new enemy
+     */
     private Enemy createEnemy() {
         //Making coordinates for new enemy
         float newX = MathUtils.random(0, PugGame.WORLD_WIDTH);
@@ -267,6 +295,9 @@ public class GameScreen implements Screen {
     }
 
     @Deprecated
+    /**
+     * Drags camera center to middle of roulette line center.
+     */
     private void dragToLineMiddle(float effectiveViewportWidth, float effectiveViewportHeight) {
         //X and Y of roulette line middle.
         float rouletteLineMiddleX = (pug.getCenterX() + roulette.getCenterX()) / 2;
@@ -282,6 +313,12 @@ public class GameScreen implements Screen {
         camera.position.y = MathUtils.clamp(camera.position.y, effectiveViewportHeight / 2, PugGame.WORLD_WIDTH - effectiveViewportHeight / 2);
     }
 
+    /**
+     * Drags camera center to roulette center.
+     * @param effectiveViewportWidth viewport width with zooming
+     * @param effectiveViewportHeight viewport height with zooming
+     * @param isDragging state of roulette dragging
+     */
     private void dragToRoulette(float effectiveViewportWidth, float effectiveViewportHeight, boolean isDragging) {
         //Difference on X between Roulette center and camera center.
         //Same to Y.
@@ -307,8 +344,11 @@ public class GameScreen implements Screen {
         }
     }
 
+    /**
+     * Creating and configuring positions to the pause screen.
+     * @return Table with pause screen
+     */
     private Table createPauseScreen() {
-        Gdx.app.log("scale", PugGame.GAME_TEXTURE_SCALE + "");
         TextureRegion pauseBackgroundTexture = new TextureRegion(new Texture(Gdx.files.internal(PAUSE_BACKGROUND_TEXTURE)));
         final Table pauseTable = new Table();
         Image backgroundImage = new Image(pauseBackgroundTexture);
@@ -345,6 +385,10 @@ public class GameScreen implements Screen {
         return pauseTable;
     }
 
+    /**
+     * Creating and configuring positions to the lose screen.
+     * @return Table with lose screen
+     */
     private Table createLoseScreen() {
         TextureRegion loseBackgroundTexture = new TextureRegion(new Texture(Gdx.files.internal(LOSE_BACKGROUND_TEXTURE)));
         final Table loseTable = new Table();

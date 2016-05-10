@@ -12,6 +12,7 @@ import com.oink.walkingwithpug.screens.MainMenuScreen;
  * Main class for the game
  */
 public class PugGame extends Game {
+    @Deprecated
     public static final float VIEWPORT_RATIO = 0.1f;
     public static final int WORLD_WIDTH = 6400;
     public static final int WORLD_HEIGHT = 6400;

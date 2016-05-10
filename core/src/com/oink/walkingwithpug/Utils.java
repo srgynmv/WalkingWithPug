@@ -67,6 +67,12 @@ public class Utils {
         return animation;
     }
 
+    public static Animation createAnimation(String spriteSheetName, int rows, int cols, float frameDuration) {
+        Animation animation = createAnimation(spriteSheetName, rows, cols);
+        animation.setFrameDuration(frameDuration);
+        return animation;
+    }
+
     public static boolean between(float val, float left, float right) {
         return (val >= left && val <= right);
     }

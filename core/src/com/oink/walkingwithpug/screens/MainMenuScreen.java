@@ -5,8 +5,17 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+
+import static com.badlogic.gdx.math.Interpolation.bounceIn;
+import static com.badlogic.gdx.math.Interpolation.exp10;
+import static com.badlogic.gdx.math.Interpolation.exp5;
+import static com.badlogic.gdx.math.Interpolation.exp5Out;
+import static com.badlogic.gdx.math.Interpolation.swing;
+import static com.badlogic.gdx.math.Interpolation.swingIn;
+import static com.badlogic.gdx.math.Interpolation.swingOut;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -125,7 +134,7 @@ public class MainMenuScreen implements Screen {
         newGameButton.addAction(fadeOut(0));
         quitButton.addAction(fadeOut(0));
 
-        stage.addAction(sequence(moveTo(0, -stage.getHeight()), moveTo(0, 0, 1f), run(new Runnable() {
+        stage.addAction(sequence(moveTo(0, -stage.getHeight()), moveTo(0, 0, 1f, exp5Out), run(new Runnable() {
             @Override
             public void run() {
                 logoSprite.addAction(fadeIn(1f));
@@ -154,6 +163,7 @@ public class MainMenuScreen implements Screen {
         Gdx.gl20.glClearColor(0, 141f / 255f, 200f / 255f, 1);
         Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        //Change angle of logo from 0 to 5
         if (logoSprite.getRotation() > 5) angleFactor = -1;
         if (logoSprite.getRotation() < 0) angleFactor = 1;
         logoSprite.rotateBy(1.5f * delta * angleFactor);
@@ -161,9 +171,6 @@ public class MainMenuScreen implements Screen {
         //Drawing
         stage.act();
         stage.draw();
-
-        stage.getBatch().begin();
-        stage.getBatch().end();
     }
 
     @Override

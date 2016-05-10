@@ -27,7 +27,7 @@ public class Roulette extends Unit {
 
     private GameScreen screen;
 
-    public Roulette(float scale, GameScreen screen) {
+    public Roulette(GameScreen screen) {
         this.screen = screen;
         rouletteLine = new RouletteLine(screen.pug, this);
         animationTimer = 0;
@@ -37,11 +37,8 @@ public class Roulette extends Unit {
         rouletteTexture = new Texture(Gdx.files.internal(ROULETTE_TEXTURE));
         rouletteTextureReversed = new Texture(Gdx.files.internal(ROULETTE_REVERSED_TEXTURE));
 
-//        setHeight(rouletteTexture.getHeight() * scale);
-//        setWidth(rouletteTexture.getWidth() * scale);
         setHeight(rouletteTexture.getHeight());
         setWidth(rouletteTexture.getWidth());
-        setBounds(getX(), getY(), getWidth(), getHeight());
         setTouchable(Touchable.enabled);
 
         makeListeners(this);
@@ -66,12 +63,23 @@ public class Roulette extends Unit {
 
         correctReverse();
 
-        if (reversed) {
-            batch.draw(rouletteTextureReversed, getX(), getY(), getWidth(), getHeight());
-        }
-        else {
-            batch.draw(rouletteTexture, getX(), getY(), getWidth(), getHeight());
-        }
+        setScale(1f);
+        batch.draw(rouletteTexture,
+                getX(),
+                getY(),
+                getWidth(),
+                getHeight(),
+                0,
+                0,
+                (int)getWidth(),
+                (int)getHeight(),
+                reversed,
+                false);
+//        if (!reversed) {
+//            batch.draw(rouletteTexture, getX(), getY(), getWidth(), getHeight());
+//        } else {
+//            batch.draw(rouletteTextureReversed, getX(), getY(), getWidth(), getHeight());
+//        }
     }
 
     private void correctReverse() {

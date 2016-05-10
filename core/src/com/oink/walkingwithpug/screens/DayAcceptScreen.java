@@ -5,6 +5,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -18,6 +19,9 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.oink.walkingwithpug.Goal;
 import com.oink.walkingwithpug.PugGame;
 import com.oink.walkingwithpug.Utils;
+
+import static com.badlogic.gdx.math.Interpolation.exp5;
+import static com.badlogic.gdx.math.Interpolation.exp5In;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
 
 public class DayAcceptScreen implements Screen {
@@ -97,10 +101,10 @@ public class DayAcceptScreen implements Screen {
 
     private void createActions() {
         table.addAction(parallel(fadeOut(0), touchable(Touchable.disabled)));
-        labelContainer.addAction(sequence(delay(1f), parallel(moveBy(0, 200, 0.5f),scaleTo(0.5f, 0.5f, 0.5f)),run(new Runnable() {
+        labelContainer.addAction(sequence(delay(0.1f), parallel(moveBy(0, 200, 1f, exp5),scaleTo(0.5f, 0.5f, 1f, exp5)),run(new Runnable() {
             @Override
             public void run() {
-                table.addAction(sequence(touchable(Touchable.childrenOnly), fadeIn(2f)));
+                table.addAction(sequence(touchable(Touchable.childrenOnly), fadeIn(1f)));
             }
         })));
     }

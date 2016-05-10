@@ -42,11 +42,11 @@ public class Pug extends Unit {
     boolean needToPee;
     boolean needToPoop;
 
-    public Pug(float scale, GameScreen screen) {
+    public Pug(GameScreen screen) {
         super();
         this.screen = screen;
 
-        movingAnimation = Utils.createAnimation(PUG_MOVING_TEXTURE, 1, 4);
+        movingAnimation = Utils.createAnimation(PUG_MOVING_TEXTURE, 1, 4, 1 / 8f);
         peeingAnimation = Utils.createAnimation(PUG_PEEING_TEXTURE, 1, 2);
 
         stateTime = 0;
@@ -61,12 +61,8 @@ public class Pug extends Unit {
         peeLevel = 0f;
 
         //Setup actor parameters
-        //setHeight(pugTexture.getRegionHeight() * scale);
-        //setWidth(pugTexture.getRegionWidth() * scale);
         setHeight(pugTexture.getRegionHeight());
         setWidth(pugTexture.getRegionWidth());
-
-        setBounds(getX(), getY(), getWidth(), getHeight());
         setOrigin(getWidth() / 2, getHeight() / 2);
 
         addToPee(new RandomXS128().nextInt(50));
@@ -98,8 +94,8 @@ public class Pug extends Unit {
 
         Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
         peeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        Vector2 coordinates = localToParentCoordinates(new Vector2(getWidth() / 2, getHeight() / 7));
-        peeRenderer.circle(coordinates.x, coordinates.y, (MAX_PEE_LEVEL - getPeeLevel()) / 10);
+        Vector2 coordinates = getPugPeePoint();
+        peeRenderer.circle(coordinates.x, coordinates.y, (MAX_PEE_LEVEL - getPeeLevel()) / 7);
         peeRenderer.end();
 
         Gdx.graphics.getGL20().glDisable(GL20.GL_BLEND);
@@ -111,7 +107,7 @@ public class Pug extends Unit {
         addNeeds();
         needToPee = needToPee || ((int)getPeeLevel() > PEE_BORDER);
 
-        if (needToPee && screen.map.canPeeOn(getCenterX(), getCenterY())) {
+        if (needToPee && screen.map.canPeeOn(getPugPeePoint())) {
             Gdx.app.log("Pug status", "Peeing");
             pee(delta);
             return;
@@ -131,7 +127,7 @@ public class Pug extends Unit {
     private void pee(float delta) {
         isMoving = false;
         isPeeing = true;
-        addToPee(-10 * delta);
+        addToPee(-20 * delta);
 
         if (getPeeLevel() == 0) {
             needToPee = false;
@@ -143,7 +139,7 @@ public class Pug extends Unit {
         isMoving = false;
         isPooping = true;
 
-        addToPoop(-5 * delta);
+        addToPoop(-10 * delta);
 
         if (getPoopLevel() == 0) {
             needToPoop = false;
@@ -188,7 +184,7 @@ public class Pug extends Unit {
     }
 
     private void addNeeds() {
-        addToPee(5f * Gdx.graphics.getDeltaTime());
+        addToPee(3f * Gdx.graphics.getDeltaTime());
         addToPoop(0.3f * Gdx.graphics.getDeltaTime());
     }
 
@@ -228,5 +224,12 @@ public class Pug extends Unit {
             neckY = getHeight() * 4f / 7f;
         }
         return localToParentCoordinates(new Vector2(neckX, neckY));
+    }
+
+    public Vector2 getPugPeePoint() {
+        //Vector2 coordinates = localToParentCoordinates(new Vector2(getWidth() / 2, getHeight() / 7));
+        float peeX = getWidth() / 2;
+        float peeY = getHeight() / 7;
+        return localToParentCoordinates(new Vector2(peeX, peeY));
     }
 }

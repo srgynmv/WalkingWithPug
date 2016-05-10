@@ -26,6 +26,7 @@ import java.util.Iterator;
 public class Map extends TiledMap {
     private static String MAP_NAME = "game/map.tmx";
     private static int TILE_SIZE;
+    private final OrthogonalTiledMapRenderer renderer;
 
     private TiledMap map;
     private GameScreen screen;
@@ -34,19 +35,19 @@ public class Map extends TiledMap {
         this.screen = screen;
         map = new TmxMapLoader().load(MAP_NAME);
         TILE_SIZE = map.getProperties().get("tilewidth", Integer.class);
+        renderer = new OrthogonalTiledMapRenderer(map);
+        renderer.setView(screen.camera);
     }
 
     //TODO this methods:
-    public void draw(Batch batch) {
-        OrthogonalTiledMapRenderer renderer = new OrthogonalTiledMapRenderer(map, batch);
-
+    public void draw() {
         renderer.setView(screen.camera);
         renderer.render();
     }
 
     public Vector2 getHomePosition() {
         MapLayer pointsLayer = map.getLayers().get("points");
-        RectangleMapObject object = (RectangleMapObject) pointsLayer.getObjects().get("homePoint");
+        RectangleMapObject object = (RectangleMapObject) pointsLayer.getObjects().get("dogHome");
 
         float centerX = object.getRectangle().getX() + object.getRectangle().getWidth() / 2;
         float centerY = object.getRectangle().getY() + object.getRectangle().getHeight() / 2;
@@ -58,6 +59,10 @@ public class Map extends TiledMap {
         TiledMapTileLayer peeLayer = (TiledMapTileLayer)map.getLayers().get("peeLayer");
         TiledMapTileLayer.Cell cell = peeLayer.getCell((int)x / TILE_SIZE, (int)y / TILE_SIZE);
         return (cell != null);
+    }
+
+    public boolean canPeeOn(Vector2 v) {
+        return canPeeOn(v.x, v.y);
     }
 
     public Object getObstacleOn(float x, float y) {
