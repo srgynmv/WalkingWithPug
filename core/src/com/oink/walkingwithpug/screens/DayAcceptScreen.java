@@ -68,7 +68,7 @@ public class DayAcceptScreen implements Screen {
 
         goalManager = new GoalManager(dayNumber);
         goalLabel.setText(goalManager.getGoalText());
-        stage.setDebugAll(true);
+        //stage.setDebugAll(true);
     }
 
     private void loadFonts() {

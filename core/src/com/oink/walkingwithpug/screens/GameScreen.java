@@ -117,7 +117,7 @@ public class GameScreen implements Screen {
         enemyTimer = 0;
 
         game.isRunning = true;
-        stage.setDebugAll(true);
+        //stage.setDebugAll(true);
     }
 
     private void addContainersToList() {
