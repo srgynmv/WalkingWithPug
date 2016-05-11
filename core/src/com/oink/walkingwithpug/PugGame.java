@@ -2,6 +2,8 @@ package com.oink.walkingwithpug;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -27,9 +29,13 @@ public class PugGame extends Game {
     public static final float FONT_BORDER_WIDTH = 1.5f;
     public static final String TTF_FONT = "fonts/raw_font.ttf";
     public static final String BITMAP_FONT = "fonts/font.fnt";
+    private static final String PREFERENCES_NAME = "Preferences";
 
     public SpriteBatch batch;
     public BitmapFont font;
+
+    private Preferences preferences;
+    private AssetManager assetManager;
 
     public boolean isRunning;
 
@@ -38,6 +44,9 @@ public class PugGame extends Game {
         batch = new SpriteBatch();
 
         //Loading resources
+        preferences = Gdx.app.getPreferences(PREFERENCES_NAME);
+        assetManager = new AssetManager();
+        loadAssetManager();
 
         try {
             font = Utils.loadFont(TTF_FONT, FONT_SIZE, Color.BLACK, FONT_BORDER_WIDTH);
@@ -51,6 +60,10 @@ public class PugGame extends Game {
 
     }
 
+    private void loadAssetManager() {
+        //TODO: Loading assets
+    }
+
     /**
      * Keeps screen proportion right
      * @return Aspect ratio
@@ -59,12 +72,10 @@ public class PugGame extends Game {
         return Gdx.graphics.getHeight() / (float) Gdx.graphics.getWidth();
     }
 
-
     @Override
     public void render() {
         super.render();
     }
-
 
     /**
      * This method dispose all loaded resources
@@ -77,5 +88,11 @@ public class PugGame extends Game {
     }
 
 
+    public Preferences getPreferences() {
+        return preferences;
+    }
 
+    public AssetManager getAssetManager() {
+        return assetManager;
+    }
 }

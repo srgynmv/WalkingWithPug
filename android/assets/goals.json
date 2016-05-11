@@ -1,0 +1,14 @@
+[
+  {
+    goalText: Simply walk with pug!,
+    loseText: Pug was very frightened!,
+    winText: Pug became satisfied!,
+    type: ONLY_PEE
+  },
+  {
+    goalText: Find the grandma house!,
+    loseText: Pug was very frightened!,
+    winText: You found the house!,
+    type: GO_TO_GRANDMA
+  }
+]

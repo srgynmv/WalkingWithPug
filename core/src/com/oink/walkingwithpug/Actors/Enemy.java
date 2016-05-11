@@ -59,23 +59,38 @@ public class Enemy extends Unit {
         //Make vector from enemy to pug
         Vector2 eyeVector = new Vector2(getVectorTo(screen.pug));
         eyeVector.scl(delta);
+        speed = eyeVector.len() / 4;
 
         //If distance > 0 move and rotate to pug
         if (getDistanceTo(screen.pug) > screen.pug.getHeight() * screen.pug.getScaleY()) {
-            moveBy(eyeVector.x, eyeVector.y);
+            if (canMoveBy(eyeVector)) {
+                moveBy(eyeVector.x, eyeVector.y);
+                isRunning = true;
+            }
+            else {
+                isRunning = false;
+            }
 
-            speed = eyeVector.len() / 4;
             float angle = eyeVector.angle() - 90;
             if (angle < 0) angle += 360;
 
             setRotation(angle); //Add 90 degrees because of texture directed to top
-
-            isRunning = true;
         }
         else {
             //TODO Make adding scary better!
             isRunning = false;
-            screen.pug.addToScary(2f * delta);
+            screen.pug.addToScary(10f * delta);
+        }
+    }
+
+    private boolean canMoveBy(Vector2 eyeVector) {
+        Vector2 headPoint = getEnemyHeadPoint();
+        headPoint.add(eyeVector);
+        if (screen.map.getObstacleOn(headPoint) != null) {
+            return false;
+        }
+        else {
+            return true;
         }
     }
 
@@ -91,5 +106,11 @@ public class Enemy extends Unit {
     @Override
     public boolean remove() {
         return super.remove();
+    }
+
+    public Vector2 getEnemyHeadPoint() {
+        float headX = getWidth() / 2;
+        float headY = getHeight() * 7f / 8f;
+        return localToParentCoordinates(new Vector2(headX, headY));
     }
 }

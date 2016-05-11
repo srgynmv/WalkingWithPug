@@ -1,11 +1,11 @@
 package com.oink.walkingwithpug.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -15,18 +15,18 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
-import com.oink.walkingwithpug.Goal;
+import com.oink.walkingwithpug.GoalManager;
 import com.oink.walkingwithpug.PugGame;
 import com.oink.walkingwithpug.Utils;
 
 import static com.badlogic.gdx.math.Interpolation.exp5;
-import static com.badlogic.gdx.math.Interpolation.exp5In;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
 
 public class DayAcceptScreen implements Screen {
     private static final int BIG_FONT_SIZE = 200;
-    private static final int SMALL_FONT_SIZE = 50;
+    public static final int SMALL_FONT_SIZE = 50;
     private static final String START_DAY_TEXTURE = "day_accept/start_day";
     private static final String EXIT_TO_MENU_TEXTURE = "day_accept/exit_to_menu";
 
@@ -41,12 +41,19 @@ public class DayAcceptScreen implements Screen {
     private BitmapFont smallFont;
     private Stage stage;
     private Label label;
+    private int dayNumber;
+    private GoalManager goalManager;
 
     public DayAcceptScreen(final PugGame game) {
-        Gdx.app.log("DayScreen", "Created");
+        //Loading preferences
+        Preferences preferences = game.getPreferences();
+        if (preferences.getInteger("day") == 0) {
+            preferences.putInteger("day", 1);
+            preferences.flush();
+        }
+
+        dayNumber = preferences.getInteger("day");
         this.game = game;
-        bigFont = Utils.loadFont(PugGame.TTF_FONT, BIG_FONT_SIZE, Color.YELLOW, 0);
-        smallFont = Utils.loadFont(PugGame.TTF_FONT, SMALL_FONT_SIZE, Color.YELLOW, 0);
 
         stage = new Stage(new StretchViewport(
                 PugGame.MENU_VIEWPORT_WIDTH,
@@ -54,13 +61,19 @@ public class DayAcceptScreen implements Screen {
         ));
         Gdx.input.setInputProcessor(stage);
 
+        loadFonts();
         configureActors();
         addActorsToStage();
         createActions();
 
-        Goal goal = new Goal();
-        goalLabel.setText(goal.getText());
-        //stage.setDebugAll(true);
+        goalManager = new GoalManager(dayNumber);
+        goalLabel.setText(goalManager.getGoalText());
+        stage.setDebugAll(true);
+    }
+
+    private void loadFonts() {
+        bigFont = Utils.loadFont(PugGame.TTF_FONT, BIG_FONT_SIZE, Color.YELLOW, 0);
+        smallFont = Utils.loadFont(PugGame.TTF_FONT, SMALL_FONT_SIZE, Color.YELLOW, 0);
     }
 
     private void addActorsToStage() {
@@ -69,14 +82,14 @@ public class DayAcceptScreen implements Screen {
     }
 
     private void configureActors() {
-        label = Utils.makeLabel("Day 1", bigFont, Color.YELLOW);
+        label = Utils.makeLabel("Day " + dayNumber, bigFont, Color.YELLOW);
         labelContainer = new Container<Label>(label);
         labelContainer.setTransform(true);
         //label.setOrigin(label.getWidth() / 2, label.getHeight() / 2);
         labelContainer.setOrigin(labelContainer.getWidth() / 2, labelContainer.getHeight() / 2);
         labelContainer.setPosition(stage.getWidth() / 2 - labelContainer.getWidth() / 2, stage.getHeight() / 2 - labelContainer.getHeight() / 2);
 
-        goalLabel = Utils.makeLabel("goal", smallFont, Color.YELLOW);
+        goalLabel = Utils.makeLabel("", smallFont, Color.YELLOW);
 
         createButtons();
         createTable();
@@ -87,7 +100,7 @@ public class DayAcceptScreen implements Screen {
         startDayButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.setScreen(new GameScreen(game));
+                game.setScreen(new GameScreen(game, goalManager));
             }
         });
         exitToMenuButton = Utils.makeButton(EXIT_TO_MENU_TEXTURE, PugGame.MENU_TEXTURE_SCALE);
@@ -118,7 +131,6 @@ public class DayAcceptScreen implements Screen {
         table.row();
         table.add(startDayButton).height(startDayButton.getHeight()).width(startDayButton.getWidth()).expandX();
         table.add(exitToMenuButton).height(exitToMenuButton.getHeight()).width(exitToMenuButton.getWidth()).expandX();
-
     }
 
     @Override

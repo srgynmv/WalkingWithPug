@@ -1,5 +1,6 @@
 package com.oink.walkingwithpug.actors;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
@@ -33,13 +34,21 @@ public class RouletteLine {
         batch.end();
         renderer.begin(ShapeRenderer.ShapeType.Line);
 
+        Color stretchColor = new Color(
+                1,
+                1 - roulette.getDistanceTo(pug) / (Roulette.MAX_DISTANCE),
+                1 - roulette.getDistanceTo(pug) / (Roulette.MAX_DISTANCE),
+                1
+        );
         //Drawing lines
         for (float i = -LINE_WIDTH / 2; i <= LINE_WIDTH / 2; ++i) {
             renderer.line(
                     pugNeckPoint.x,
                     pugNeckPoint.y,
                     roulette.getCenterX() + rouletteCenterDX,
-                    roulette.getCenterY() + i
+                    roulette.getCenterY() + i,
+                    Color.WHITE,
+                    stretchColor
             );
         }
         renderer.end();

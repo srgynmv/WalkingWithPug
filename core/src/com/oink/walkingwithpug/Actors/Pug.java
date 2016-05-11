@@ -29,9 +29,10 @@ public class Pug extends Unit {
     private Animation peeingAnimation;
     float stateTime;
 
-    private boolean isMoving;
-    private boolean isPeeing;
-    private boolean isPooping;
+    private boolean moving;
+    private boolean peeing;
+    private boolean pooping;
+    private boolean alreadyPeed;
 
     private float speed;
 
@@ -52,9 +53,10 @@ public class Pug extends Unit {
         stateTime = 0;
         speed = 0;
         pugTexture = movingAnimation.getKeyFrame(stateTime, true);
-        isMoving = false;
-        isPeeing = false;
-        isPooping = false;
+        moving = false;
+        peeing = false;
+        pooping = false;
+        alreadyPeed = false;
 
         scaryLevel = 0f;
         poopLevel = 0f;
@@ -73,14 +75,14 @@ public class Pug extends Unit {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        if (isPeeing || isPooping) {
+        if (peeing || pooping) {
             pugTexture = peeingAnimation.getKeyFrame(stateTime, true);
             stateTime += Gdx.graphics.getDeltaTime() * 2;
             drawPee(batch);
         }
         else {
             pugTexture = movingAnimation.getKeyFrame(stateTime, true);
-            if (isMoving && screen.game.isRunning) stateTime += Gdx.graphics.getDeltaTime() * speed;
+            if (moving && screen.game.isRunning) stateTime += Gdx.graphics.getDeltaTime() * speed;
         }
         batch.draw(pugTexture, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
     }
@@ -125,25 +127,28 @@ public class Pug extends Unit {
     }
 
     private void pee(float delta) {
-        isMoving = false;
-        isPeeing = true;
+        moving = false;
+        peeing = true;
         addToPee(-20 * delta);
 
         if (getPeeLevel() == 0) {
             needToPee = false;
-            isPeeing = false;
+            peeing = false;
+
+            //If pee level became 0, pug already peed.
+            alreadyPeed = true;
         }
     }
 
     private void poop(float delta) {
-        isMoving = false;
-        isPooping = true;
+        moving = false;
+        pooping = true;
 
         addToPoop(-10 * delta);
 
         if (getPoopLevel() == 0) {
             needToPoop = false;
-            isPooping = false;
+            pooping = false;
         }
     }
 
@@ -153,21 +158,27 @@ public class Pug extends Unit {
         speed = eyeVector.len() / 5;
 
         //If pug too far from roulette, move to roulette, set running == true
-        if (getDistanceTo(screen.roulette) > GameScreen.MAX_LINE_LENGTH && canMoveBy(eyeVector)) {
+        if (getDistanceTo(screen.roulette) > GameScreen.MAX_LINE_LENGTH) {
             //Gdx.app.log("Pug status", "Moving");
-            moveToRoulette(eyeVector);
-            isMoving = true;
+            if (canMoveBy(eyeVector)) {
+                moveBy(eyeVector.x, eyeVector.y);
+                moving = true;
+            }
+            else {
+                moving = false;
+            }
+            rotateToRoulette(eyeVector);
         }
         else {
             //Gdx.app.log("Pug status", "Staying");
-            isMoving = false;
+            moving = false;
         }
     }
 
     private boolean canMoveBy(Vector2 eyeVector) {
-        float newX = getCenterX() + eyeVector.x;
-        float newY = getCenterY() + eyeVector.y;
-        if (screen.map.getObstacleOn(newX, newY) != null) {
+        Vector2 headPoint = getPugHeadPoint();
+        headPoint.add(eyeVector);
+        if (screen.map.getObstacleOn(headPoint) != null) {
             return false;
         }
         else {
@@ -175,8 +186,7 @@ public class Pug extends Unit {
         }
     }
 
-    private void moveToRoulette(Vector2 eyeVector) {
-        moveBy(eyeVector.x, eyeVector.y);
+    private void rotateToRoulette(Vector2 eyeVector) {
         float angle = eyeVector.angle() - 90;
         if (angle < 0) angle += 360;
 
@@ -184,7 +194,12 @@ public class Pug extends Unit {
     }
 
     private void addNeeds() {
-        addToPee(3f * Gdx.graphics.getDeltaTime());
+        if (alreadyPeed) {
+            addToPee(1f * Gdx.graphics.getDeltaTime());
+        }
+        else {
+            addToPee(3f * Gdx.graphics.getDeltaTime());
+        }
         addToPoop(0.3f * Gdx.graphics.getDeltaTime());
     }
 
@@ -220,7 +235,7 @@ public class Pug extends Unit {
         float neckX = getWidth() / 2;
         float neckY = getHeight() * 2f / 3f;
 
-        if (isPeeing || isPooping) {
+        if (peeing || pooping) {
             neckY = getHeight() * 4f / 7f;
         }
         return localToParentCoordinates(new Vector2(neckX, neckY));
@@ -231,5 +246,27 @@ public class Pug extends Unit {
         float peeX = getWidth() / 2;
         float peeY = getHeight() / 7;
         return localToParentCoordinates(new Vector2(peeX, peeY));
+    }
+
+    public Vector2 getPugHeadPoint() {
+        float headX = getWidth() / 2;
+        float headY = getHeight() * 6f / 7f;
+        return localToParentCoordinates(new Vector2(headX, headY));
+    }
+
+    public boolean isMoving() {
+        return moving;
+    }
+
+    public boolean isPeeing() {
+        return peeing;
+    }
+
+    public boolean isPooping() {
+        return pooping;
+    }
+
+    public boolean isAlreadyPeed() {
+        return alreadyPeed;
     }
 }

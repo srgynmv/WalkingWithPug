@@ -1,5 +1,7 @@
 package com.oink.walkingwithpug.actors;
 
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
@@ -11,6 +13,10 @@ public class Unit extends Actor {
      */
     public float getDistanceTo(Unit unit) {
         return Vector2.dst(getCenterX(), getCenterY(), unit.getCenterX(), unit.getCenterY());
+    }
+
+    public float getDistanceTo(float x, float y) {
+        return Vector2.dst(getCenterX(), getCenterY(), x, y);
     }
 
     /**
@@ -52,5 +58,12 @@ public class Unit extends Actor {
     public float getCenterY()
     {
         return getY() + getOriginY();
+    }
+
+    public boolean in(Rectangle rectangle) {
+        return getCenterX() >= rectangle.getX()
+                && getCenterX() <= rectangle.getX() + rectangle.getWidth()
+                && getCenterY() >= rectangle.getY()
+                && getCenterY() <= rectangle.getY() + rectangle.getHeight();
     }
 }

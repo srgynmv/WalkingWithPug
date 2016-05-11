@@ -24,7 +24,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Map extends TiledMap {
-    private static String MAP_NAME = "game/map.tmx";
+    private static final String MAP_NAME = "game/map.tmx";
+    public static final String PUG_HOME_NAME = "dogHome";
+    public static final String GRANDMA_HOME_NAME = "grandmaHome";
     private static int TILE_SIZE;
     private final OrthogonalTiledMapRenderer renderer;
 
@@ -46,13 +48,18 @@ public class Map extends TiledMap {
     }
 
     public Vector2 getHomePosition() {
-        MapLayer pointsLayer = map.getLayers().get("points");
-        RectangleMapObject object = (RectangleMapObject) pointsLayer.getObjects().get("dogHome");
+        Rectangle homeRectangle = getRectangle("dogHome");
 
-        float centerX = object.getRectangle().getX() + object.getRectangle().getWidth() / 2;
-        float centerY = object.getRectangle().getY() + object.getRectangle().getHeight() / 2;
+        float centerX = homeRectangle.getX() + homeRectangle.getWidth() / 2;
+        float centerY = homeRectangle.getY() + homeRectangle.getHeight() / 2;
 
         return new Vector2(centerX, centerY);
+    }
+
+    public Rectangle getRectangle(String rectangleName) {
+        MapLayer pointsLayer = map.getLayers().get("points");
+        RectangleMapObject object = (RectangleMapObject) pointsLayer.getObjects().get(rectangleName);
+        return object.getRectangle();
     }
 
     public boolean canPeeOn(float x, float y) {
@@ -69,5 +76,9 @@ public class Map extends TiledMap {
         TiledMapTileLayer obstacleLayer = (TiledMapTileLayer)map.getLayers().get("obstacles");
         TiledMapTileLayer.Cell cell = obstacleLayer.getCell((int)x / TILE_SIZE, (int)y / TILE_SIZE);
         return cell;
+    }
+
+    public Object getObstacleOn(Vector2 v) {
+        return getObstacleOn(v.x, v.y);
     }
 }

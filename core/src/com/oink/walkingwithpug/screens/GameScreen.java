@@ -1,13 +1,16 @@
 package com.oink.walkingwithpug.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -21,10 +24,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.oink.walkingwithpug.GoalManager;
 import com.oink.walkingwithpug.actors.Enemy;
 import com.oink.walkingwithpug.actors.Map;
 import com.oink.walkingwithpug.actors.Pug;
@@ -32,8 +35,9 @@ import com.oink.walkingwithpug.PugGame;
 import com.oink.walkingwithpug.actors.Roulette;
 import com.oink.walkingwithpug.Utils;
 
+import java.util.ArrayList;
+
 public class GameScreen implements Screen {
-    private static final String MAP_TEXTURE = "game/random_map.png";
     private static final String BUTTON_PAUSE_TEXTURE = "game/buttons/pause";
     private static final String PAUSE_BACKGROUND_TEXTURE = "game/pause_menu/pause_background.png";
     private static final String PAUSE_CONTINUE_TEXTURE = "game/pause_menu/continue";
@@ -41,13 +45,16 @@ public class GameScreen implements Screen {
     private static final String LOSE_BACKGROUND_TEXTURE = "game/lose_menu/background.png";
     private static final String LOSE_EXIT_TO_MENU_TEXTURE = "game/lose_menu/exit_to_menu";
     private static final String LOSE_RESTART_TEXTURE = "game/lose_menu/restart";
+    private static final String WIN_BACKGROUND_TEXTURE = "game/win_menu/background.png";
+    private static final String WIN_EXIT_TO_MENU_TEXTURE = "game/win_menu/exit_to_menu";
+    private static final String WIN_NEXT_DAY_TEXTURE = "game/win_menu/next_day";
 
     public static final float CAMERA_SCALING = 0.01f;
     public static final float CAMERA_MAX_ZOOM = 1.5f;
     public static final float CAMERA_MIN_ZOOM = 1.0f;
     public static final float ENEMY_CREATE_TIME = 3f;
     public static final float MAX_LINE_LENGTH = PugGame.GAME_VIEWPORT_WIDTH / 4;
-    public static final int MAX_ENEMY_COUNT = 0;
+    public static final int MAX_ENEMY_COUNT = 7;
 
     public PugGame game;
     public Stage stage;
@@ -65,14 +72,24 @@ public class GameScreen implements Screen {
     Group enemiesGroup;
     Group runningGameGroup;
     VerticalGroup labelGroup;
-    Table pauseTable;
-    Table loseTable;
+    private Table pauseTable;
+    private Table loseTable;
+    private Table winTable;
 
     public OrthographicCamera camera;
     private Container<VerticalGroup> labelContainer;
+    private GoalManager goalManager;
 
-    GameScreen(final PugGame game) {
+    private ArrayList<WidgetGroup> containers;
+
+    private BitmapFont smallFont;
+
+    GameScreen(final PugGame game, GoalManager goalManager) {
         this.game = game;
+        this.goalManager = goalManager;
+
+        //TODO: Change this to load from one place.
+        smallFont = Utils.loadFont(PugGame.TTF_FONT, 25, Color.BLACK, 1);
 
         //Making camera
         camera = new OrthographicCamera();
@@ -89,6 +106,8 @@ public class GameScreen implements Screen {
         //Creating map
         map = new Map(this);
         configureActors();
+        containers = new ArrayList<WidgetGroup>();
+        addContainersToList();
         addActorsToStage();
 
         //Initialize the position of camera at start
@@ -98,7 +117,15 @@ public class GameScreen implements Screen {
         enemyTimer = 0;
 
         game.isRunning = true;
-        //stage.setDebugAll(true);
+        stage.setDebugAll(true);
+    }
+
+    private void addContainersToList() {
+        containers.add(pauseContainer);
+        containers.add(labelContainer);
+        containers.add(pauseTable);
+        containers.add(loseTable);
+        containers.add(winTable);
     }
 
     private void configureActors() {
@@ -114,6 +141,7 @@ public class GameScreen implements Screen {
         //Create screens
         pauseTable = createPauseScreen();
         loseTable = createLoseScreen();
+        winTable = createWinScreen();
 
         createButtons();
         createLabels();
@@ -170,10 +198,9 @@ public class GameScreen implements Screen {
         runningGameGroup.addActor(enemiesGroup);
         runningGameGroup.addActor(pug);
         runningGameGroup.addActor(roulette);
-        stage.addActor(pauseContainer);
-        stage.addActor(labelContainer);
-        stage.addActor(pauseTable);
-        stage.addActor(loseTable);
+        for (WidgetGroup container : containers) {
+            stage.addActor(container);
+        }
     }
 
     /**
@@ -200,9 +227,8 @@ public class GameScreen implements Screen {
             roulette.rouletteLine.setProjectionMatrix(stage.getCamera().combined);
             stage.act(delta);
 
-            if (pug.getScaryLevel() >= Pug.MAX_SCARY_LEVEL) {
-                loseGame();
-            }
+            checkGoal();
+            checkLose();
 
             //Creating enemies in runtime
             if (enemyTimer == ENEMY_CREATE_TIME && enemiesGroup.getChildren().size < MAX_ENEMY_COUNT) {
@@ -221,6 +247,31 @@ public class GameScreen implements Screen {
         stage.draw();
     }
 
+    private void checkGoal() {
+        switch (goalManager.getGoalType()) {
+            case ONLY_PEE:
+                Rectangle pugHome = map.getRectangle(Map.PUG_HOME_NAME);
+                if (pug.isAlreadyPeed() && pug.in(pugHome)) {
+                    winGame();
+                }
+                break;
+            case GO_TO_GRANDMA:
+                Rectangle grandmaHome = map.getRectangle(Map.GRANDMA_HOME_NAME);
+                if (pug.in(grandmaHome)) {
+                    winGame();
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void checkLose() {
+        if (pug.getScaryLevel() >= Pug.MAX_SCARY_LEVEL) {
+            loseGame();
+        }
+    }
+
     /**
      * Move and scales ui to left bottom corner of screen, updates info of ui.
      */
@@ -233,17 +284,10 @@ public class GameScreen implements Screen {
         float bottomLeftCornerX = camera.position.x - stage.getWidth() / 2;
         float bottomLeftCornerY = camera.position.y - stage.getHeight() / 2;
 
-        pauseContainer.setPosition(bottomLeftCornerX, bottomLeftCornerY);
-        pauseContainer.setScale(camera.zoom);
-
-        labelContainer.setPosition(bottomLeftCornerX, bottomLeftCornerY);
-        labelContainer.setScale(camera.zoom);
-
-        pauseTable.setPosition(bottomLeftCornerX, bottomLeftCornerY);
-        pauseTable.setScale(camera.zoom);
-
-        loseTable.setPosition(bottomLeftCornerX, bottomLeftCornerY);
-        loseTable.setScale(camera.zoom);
+        for (WidgetGroup container : containers) {
+            container.setPosition(bottomLeftCornerX, bottomLeftCornerY);
+            container.setScale(camera.zoom);
+        }
 
         //Without this labels didn't work
         labelGroup.setOrigin(labelGroup.getWidth(), labelGroup.getHeight());
@@ -379,6 +423,9 @@ public class GameScreen implements Screen {
 
         pauseTable.padBottom(stage.getHeight() / 6);
         pauseTable.addActor(backgroundImage);
+        Label goalLabel = Utils.makeLabel(goalManager.getGoalText(), smallFont, Color.YELLOW);
+        pauseTable.add(goalLabel).center().expandX().colspan(2).pad(stage.getHeight() / 10);
+        pauseTable.row();
         pauseTable.add(continueButton).height(continueButton.getHeight()).width(continueButton.getWidth()).expandX();
         pauseTable.add(exitToMenuButton).height(exitToMenuButton.getHeight()).width(exitToMenuButton.getWidth()).expandX();
         pauseTable.setVisible(false);
@@ -407,7 +454,7 @@ public class GameScreen implements Screen {
         restartButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.setScreen(new GameScreen(game));
+                game.setScreen(new GameScreen(game, goalManager));
             }
         });
 
@@ -421,10 +468,54 @@ public class GameScreen implements Screen {
 
         loseTable.padBottom(stage.getHeight() / 6);
         loseTable.addActor(backgroundImage);
+        Label loseLabel = Utils.makeLabel(goalManager.getLoseText(), smallFont, Color.YELLOW);
+        loseTable.add(loseLabel).center().expandX().colspan(2).pad(stage.getHeight() / 10);
+        loseTable.row();
         loseTable.add(restartButton).height(restartButton.getHeight()).width(restartButton.getWidth()).expandX();
         loseTable.add(exitToMenuButton).height(exitToMenuButton.getHeight()).width(exitToMenuButton.getWidth()).expandX();
         loseTable.setVisible(false);
         return loseTable;
+    }
+
+    private Table createWinScreen() {
+        TextureRegion winBackgroundTexture = new TextureRegion(new Texture(Gdx.files.internal(WIN_BACKGROUND_TEXTURE)));
+        final Table winTable = new Table();
+        Image backgroundImage = new Image(winBackgroundTexture);
+
+        setUiParameters(winTable);
+        winTable.align(Align.bottom);
+
+        backgroundImage.setScaling(Scaling.fill);
+        backgroundImage.setSize(
+                winBackgroundTexture.getRegionWidth() * PugGame.GAME_TEXTURE_SCALE,
+                winBackgroundTexture.getRegionHeight() * PugGame.GAME_TEXTURE_SCALE
+        );
+
+        ImageButton nextDayButton = Utils.makeButton(WIN_NEXT_DAY_TEXTURE, PugGame.GAME_TEXTURE_SCALE);
+        nextDayButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setScreen(new DayAcceptScreen(game));
+            }
+        });
+
+        ImageButton exitToMenuButton = Utils.makeButton(WIN_EXIT_TO_MENU_TEXTURE, PugGame.GAME_TEXTURE_SCALE);
+        exitToMenuButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setScreen(new MainMenuScreen(game));
+            }
+        });
+
+        winTable.padBottom(stage.getHeight() / 6);
+        winTable.addActor(backgroundImage);
+        Label winLabel = Utils.makeLabel(goalManager.getWinText(), smallFont, Color.YELLOW);
+        winTable.add(winLabel).center().expandX().colspan(2).pad(stage.getHeight() / 10);
+        winTable.row();
+        winTable.add(nextDayButton).height(nextDayButton.getHeight()).width(nextDayButton.getWidth()).expandX();
+        winTable.add(exitToMenuButton).height(exitToMenuButton.getHeight()).width(exitToMenuButton.getWidth()).expandX();
+        winTable.setVisible(false);
+        return winTable;
     }
 
     private void loseGame() {
@@ -441,6 +532,19 @@ public class GameScreen implements Screen {
         pauseContainer.setTouchable(Touchable.disabled);
         runningGameGroup.setTouchable(Touchable.disabled);
         pauseTable.setVisible(true);
+    }
+
+    private void winGame() {
+        game.isRunning = false;
+
+        pauseContainer.setTouchable(Touchable.disabled);
+        runningGameGroup.setTouchable(Touchable.disabled);
+
+        Preferences preferences = game.getPreferences();
+        preferences.putInteger("day", preferences.getInteger("day") + 1);
+        preferences.flush();
+
+        winTable.setVisible(true);
     }
 
     private void continueGame() {

@@ -7,16 +7,18 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
+import com.oink.walkingwithpug.PugGame;
 import com.oink.walkingwithpug.screens.GameScreen;
 
 public class Roulette extends Unit {
     private static final String ROULETTE_TEXTURE = "game/actors/Roulette.png";
-    private static final String ROULETTE_REVERSED_TEXTURE = "game/actors/RouletteReversed.png";
+    //private static final String ROULETTE_REVERSED_TEXTURE = "game/actors/RouletteReversed.png";
     private static final float DY = 5;
     private static final float ANIMATION_TIME = 0.3f;
+    public static final float MAX_DISTANCE = PugGame.GAME_VIEWPORT_WIDTH;
 
     private Texture rouletteTexture;
-    private Texture rouletteTextureReversed;
+    //private Texture rouletteTextureReversed;
     public RouletteLine rouletteLine;
 
     private float animationTimer;
@@ -35,7 +37,7 @@ public class Roulette extends Unit {
         isDragging = false;
 
         rouletteTexture = new Texture(Gdx.files.internal(ROULETTE_TEXTURE));
-        rouletteTextureReversed = new Texture(Gdx.files.internal(ROULETTE_REVERSED_TEXTURE));
+        //rouletteTextureReversed = new Texture(Gdx.files.internal(ROULETTE_REVERSED_TEXTURE));
 
         setHeight(rouletteTexture.getHeight());
         setWidth(rouletteTexture.getWidth());
@@ -121,8 +123,12 @@ public class Roulette extends Unit {
 
     @Override
     public void moveBy(float x, float y) {
-        super.moveBy(x, y);
-        clampInScreenBounds();
+        float newX = getCenterX() + x;
+        float newY = getCenterY() + y;
+        if (screen.pug.getDistanceTo(newX, newY) < MAX_DISTANCE) {
+            super.moveBy(x, y);
+            clampInScreenBounds();
+        }
     }
 
     private void clampInScreenBounds() {
@@ -138,6 +144,7 @@ public class Roulette extends Unit {
         );
     }
 
+    @Deprecated
     private void animateRoulette() {
         if (animationFlag) {
             setY(getY() - DY);
